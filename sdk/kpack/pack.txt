@@ -1,0 +1,96 @@
+       Title: Pack Archive
+     Version: 0.72
+ Platform(s): TI-89, TI-92+, V200, TI-89 Titanium
+      Author: PpHd
+    Web Site: http://www.timetoteam.fr.st
+      E-Mail: ppelissi@caramail.com
+Release Date: See PreOs.txt
+
+-----------------------------------------------------------------------------
+What is a Pack Archive ?
+-----------------------------------------------------------------------------
+	
+A pack archive is an asm program which has some special features :
+  + It contains multiple files in one file (like TAR files).
+  + Each contained files can be compressed by shrnklib, or ziplib, or a personnal program (like ZIP files).
+  + Each file can be stored uncompressed.
+  + The first file of the Pack Archive will be extracted and executed when you want to run the Pack Archive without losing RAM (The Pack archive will remain archived during the execution of the program). -It works either with Shell (TictEx, doors, pct, ...), either the Home Line command.
+  + The kernel can access the files of a Pack archive just like normal files. So you can add and compressed your libraries in ONE file, and it will be transparent from a developper/user point of view).
+  + A program can access the files of a Pack Archive by using exported kernel functions.
+
+
+-----------------------------------------------------------------------------
+How to create Pack Archive ?
+-----------------------------------------------------------------------------
+
+kpack program is an easy way to create pack-archive using shrnklib.	
+It needs that tigcc is installed (even if it could work witout).
+Just write in a command shell:
+     kpack	infile1.9xz infile2.9xz ... output
+	
+Example:
+	kpack	doors.9xz graphlib.9xz userlib.9xz filelib.9xz ziplib.9xz doorslib
+Or	kpack	*.9xz stdlib
+	
+The first file of a pack-archive will be executed when you try to run it.
+	
+You can even add some files which are not compressed in the pack :
+Example:
+	kpack	sma.9xz !smadata.9xz sma
+Just add '!' before the filename you don't want to compresse 
+(The first file MUST be compressed !)	
+
+You can even add the compressing library in the Pack (uncompressed of course).
+
+-----------------------------------------------------------------------------
+How to use other compressing libraries ?
+-----------------------------------------------------------------------------
+
+You can use any compressing kernel libraries using Pack Archive.
+The library must export a function whose prototype is :
+Input: 
+	d0.w = index of section to extract
+	a0.l = pointer to archive
+Output:
+	d0.w = Handle or H_NULL (Standard C)
+Registers destroyed :
+	d0-d2/a0-a1 (Standard C)
+
+Then have a look at programformat.txt, and you just have to change :
+	+ The compressing library name.
+	+ The minimum version number.
+	+ The function number.
+Compress your data, and modify the asm program produced by kpack
+(it doesn't erase it). Then recompile it.
+	
+
+
+
+-----------------------------------------------------------------------------
+How to use zpack ?
+-----------------------------------------------------------------------------
+	
+zpack is an equivalent of kpack.exe but on-calc.
+It will compress the files and create a pack archive on-calc using ziplib.
+(ziplib compressed less than shrnklib but it works on-calc !)
+The syntax is 
+	zpack("file1","file2",..."outfile")
+outfile must not exist.
+	
+It provides the same thing than compressing with kpack (Auto-exec archive / compressed libs).
+A very nice feature : Even if ziplib is compressed by shrnklib, it works ! Remember, it is transparent ;) How it works ? First, the Pack Archive calls the kernel and says that it want to execute the first file. The kernel finds it, and discovers it needs ziplib. It searches ziplib, and finds it inside another Pack Archive which is compressed by shrnklib. It searches shrnklib, relocs it, executes the right function, extracts ziplib, unrelocs and frees shrnklib. Then it calls ziplib (Relocs, executes the right functions, extracts the first file, unrelocs, and frees ziplib). Then it executes the program :) 
+Complicated ? Maybe, but the kernel does the job for you ;)
+	
+
+
+-----------------------------------------------------------------------------
+How to use zunpack ?
+-----------------------------------------------------------------------------
+	
+zunpack is the contrary of kpack.exe and zpack.
+It will uncompress the selected file.
+You can uncompress either file compressed by ziplib or shrnklib.
+The syntax is 
+	zunpack("file1")
+where file1 is the file to extract.
+(It is the name of a file which is inside a Pack Archive. It is not the name of a Pack Archive.

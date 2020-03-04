@@ -1,0 +1,246 @@
+ UGPLIB - Copyright 1998 David Kuehling
+ Adaptation for TI-89/92+ - Copyright 2004, 2005 Patrick Pelissier
+
+ This file is part of the UGPLIB Library.
+
+ The UGPLIB Library is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or (at your
+ option) any later version.
+
+ The UGPLIB Library is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with the MPFR Library; see the file COPYING.LIB.  If not, write to
+ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ MA 02111-1307, USA.
+
+
+  --------------------------------------------------------------------------
+                                UGPCONV 2.10
+
+                           by David Kühling 1998
+  --------------------------------------------------------------------------
+
+  -----------------------------------
+      Introduction
+  -----------------------------------
+
+UGPCONV is a graphics convertion program for the TI-92 calculator with the
+assembly shell Fargo (by David Ellsworth). It can convert *.TGA to *.UGP,
+*.TGA to *.92S files or *.TGA to raw bitplane pictures. Other source formats
+may be supported in future versions. The output format, UGP means United
+GraPhics. And as this name expresses, it is a union of many subtypes. It is
+similar to other graphics formats, like BMP, GIF etc. but UGP is very much
+TI-92 optimized. Some of its features are:
+
+        * 2, 4 or 7 grey levels
+        * compression with the fast and effective Packer92 algorithm
+        * animated - compressed animations are build in a way, that each
+          picture can be uncompressed separately - for this reason you are 
+	  able to work with very huge animations (the biggest animation I 
+	  created was 130K uncompressed and 30K compressed, only 2700 bytes
+	  temporary memory were required to extract each picture)
+        * slide show mode - animation, that isn't cycled, every picture is
+          shown until key is pressed
+        * some settings that could increase compression ratio
+
+Similar to other graphics formats, UGP pictures contain all settings and
+the width and height in a picture header, which has a size of only 4 bytes
+(pictures) or 6 bytes (animations). Currently there are two methods of
+displaying a UGP picture:
+
+        1. Put it into a TI-92 string variable (*.92s) by the '/s' option.
+           In this case UGPCONV will store the UGP picture together with
+           a title, a UGP signature and the picture delay time for animations.
+           This string variable can then be displayed, using the UGP Picture
+	   Browser UGPBRWSE.92p (requires BRWSELIB.92p) or by the TI-Basic
+	   like program UGPVIEW.92p that gets the name of the picture passed
+	   as a string: ugpview("ugp_pic") - if the UGP string variable is in
+           the main folder, otherwise: ugpview("folder\ugp_pic").
+        2. Write a little ASM proggie, that displays the picture, using
+           UGPLIB:
+
+            lea     Picture(PC),a0     ; load the picture's address
+            move.w  #100, d2           ; set picture delay time(animation only)
+            jsr     ugplib::AutoDisp   ; display the picture centered, and wait
+
+           The picture data themselves are inserted into the programm by the
+           INCBIN directive:
+
+                    dc.w    0              ;align picture at even address
+            Picture: INCBIN  "picture.ugp" ;insert the picture
+
+The UGPLIB library also contains a function to display a picture at any
+screen position. Look UGPLIB.H for details on how to use ugplib::AutoDisp
+and ugplib::Display.
+
+At this point, you should view the examples, I included into the UGPCONV
+package, this will convince you that UGPCONV is a very powerful tool. Most
+of the examples are string variables (*.92s), that can be displayed by
+UGPBRWSE. To run UGPBRWSE, you will need gray4lib, gray7lib, ugplib, pk92lib
+and brwselib on your calc.
+
+If you don't want to read the whole documentation, you may convert 24bit, 
+uncompressed TGA pictures into compressed, interleaved UGP-STR files in the 
+easiest way by:
+
+	UGPCONV PICTURE.TGA /oPICTURE.92S /s /i /c /C140
+	
+Instead of PICTURE.TGA you may specify many files (or wildcards), this will
+cause UGPCONV to create an animated UGP-STR file.
+
+  -----------------------------------
+      UGPCONV.EXE
+  -----------------------------------
+
+If you worked with the old version of UGPCONV, forget everything about it.
+The current version is almost completely command line based, is within itself
+logic, and anything, contrast dithering etc. is now working as it should 
+work. It could be that someone sometime programms a graphical version.
+UGPCONV /? will show you a short command line option summary. Here is an
+accurate list of them: (if you want to use UGPCONV effectively, you should
+read this section completely)
+
+Syntax: UGPCONV [filename1] [filename2] [...] [Option1] [Option2] [...]
+
+[filenameX]:
+  Input file. Currently it must be a 24 bit, uncompressed .TGA file.
+  The filename may contain wildcards. The files specified by it will be
+  opened in alphabetical order.
+[OptionX]:
+  An option (case sensitive!) that has to begin with '/' or '-'. Option list:
+
+    /o<filename>   Specify the name of the output file. In case you're using
+    		   the /s - option, this file should end on ".92s"
+    /p<num>        Set the number of bitplanes 1..3 (default: 2).
+                     1 bitplane:  black&white
+                     2 bitplanes: 4 grey levels 
+                     3 bitplanes: 7 grey levels 
+    /r             Output raw file(s) instead of one UGP file. Raw files
+                   just contain the bitplanes of the picture, most
+                   significant first, least significant last. You may  use /r
+		   to convert pictures to sprites etc.. Please do not ask me,
+		   how to display them. UGP pictures are nothing else, than 
+		   (compessed) raw pictures with a 4 byte header. Watch 
+		   UGPLIB.S to get an example of how to display them.
+    /s             Output the UGP picture, together with an UGP signature,
+                   a title and the animation picture delay time into a TI-92
+                   string variable (*.92s), to be displayed by UGPBRWSE or
+		   UGPVIEW.
+    /S             Show a preview of the picture(s). Thus the picture will
+                   be displayed greater than on the TI-92, you should watch
+                   it from 1 or 2 meters distance to get the right
+                   impression.
+    /D<num>        Set the dither mode to <num> (default: 1)
+                   Dithering is the method, which is used to convert colors
+                   that aren't within the color depth of the destination
+                   picture. E.g. a white-black chessboard pattern can be
+                   used to display grey in 1 black&white mode.
+                     0: no dithering (nearest solid)
+                     1: ordered dither 1 (small pattern)
+                     2: ordered dither 2 (big pattern)
+                     3: ordered dither 3 (huge pattern)
+                     4: error diffusion  (random pattern)
+                   It may also influence the compression ratio quite
+                   a lot. /D0 can be compressed best, /D4 worst. The
+                   compression ratio, when using /D1 /D2 or /D3 depends on
+                   the picture's contents. But normally the compression ratio
+                   will decrease, the greater the dither number is.
+    /C<num>        Change the contrast 0..255. The default contrast is 128.
+    		   Greater values increase the contrast, smaller ones
+		   decrease it. Thus the TI-92's LCD display doesn't have 
+		   much contrast, you should try values around 140. Use the
+		   /S option to verify the result.
+    /B<num>        Change the brightness 0..255. The default value is 128. 
+    		   Greater values increase the brightness, smaller values 
+		   decrease it.
+    /c             (not for RAW pictures) compress picture(s) by the Packer92
+    		   algorithm. If the picture file is quite big, and the 
+		   compression ratio is low, the uncompression can take some 
+		   seconds (compression can also take some time. If you're 
+		   computer is slow this could take up to some minutes). If 
+		   you use it on animations, the pictures will be compressed
+		   in a way, that they can be uncompressed seperated. Thereby
+		   only the memory for one picture has to be temporaryly 
+		   allocated.
+    /i             (not for RAW pictures) store picture(s) interleaved. This 
+    		   means, that
+                   the bitplanes will be merged together. The resulting file
+                   will contain first all bits of the first pixel, than all
+                   bits of the second pixel and so on. /i almost allways
+                   increases the compression ratio by 5% to 20%. But
+                   interleaved pictures are displayed quite slow, because
+                   seperating the planes is quite complicate. You shouldn't
+                   use this option when creating big animations. Note that
+                   1 plane pictures are the same, whether interleaved or
+                   noninterleaved. UGPCONV will automatically switch to
+                   noninterleaved mode, when you specify /p1.
+    /x             (UGP(-STR) _animations_ only) store pictures XOR to their
+                   predecessor. This means that each pixel is stored as
+                   bitwise difference to the same pixel in the last picture.
+                   It will increase the compression ratio of animations that
+                   have a background that stays the same in all pictures.
+                   Otherwise it will certainly decrease the ratio.
+    /l             Create a slide show instead of an animation. Slide shows
+                   are handled exactly like animation, but when they are
+                   displayed, pictures are only switched when a key is
+                   pressed. They aren't displayed cylced.
+
+
+  -----------------------------------
+       Bugs and Troubleshooting
+  -----------------------------------
+
+UGPCONV / UGPLIB should be completely bugfree. I tested everything. If a
+Fargo program which uses UGPLIB doesn't execute properly, check whether it
+is smaller than 32768 bytes. The Fargo execution function will get trouble
+if it isn't, propable because it works with 16bit, signed relative pointers.
+If you want to create animations or slide shows, that are greater than 32767
+bytes, use the `/s' option, to output them into a TIOS string variable, and
+display it by UGPVIEW. But if you do so, make sure, that you are using the
+newer version of pk92lib.92p, that is included within this package.
+
+If you abort UGPCONV while it is working (e.g. by pressing ctrl+alt+del). It
+could leave a lot of temporary files in the directory, specified by the
+TMP, TEMP or some other environment variables. These files will be named
+dj000000, dj000001... .
+
+Note that you allways have to align UGP pictures at even addresses within
+your Fargo programm, else it could freeze your TI-92 with an Addressmode
+Error. This alignment can be done, by inserting "ds.w 0" or "EVEN" before
+the INCBIN-command.
+
+If you have an older pk92lib or ugplib version on your calc, replace it by
+the newer version. Else special things won't work. You also have to use
+the newer version of gray7lib (at least Fargo 0.2.7.1), older versions had
+a little bug, that crashed the calc.
+
+
+  -----------------------------------
+        Credits
+  -----------------------------------
+
+Thanks to:
+       * David Ellsworth
+       * The people of ticalc.org
+       * Teyssier Marc, for helping me with passing arguments through the
+         TIOS command line
+       * Sacha Kaercher, some time ago he explained me, how the TI-92's
+         variable system works
+       * Felix Kühling, for his nice raytracer animations
+       * Jimmy Monin, for again testing my programs
+
+Constructive comments, bugs, questions, suggestions etc. to:
+	     dvdkhlng@gmx.de
+or
+        David Kühling           (David K&uuml;hling)
+        Lion-Feuchtwanger-Str. 44
+        12619 Berlin
+        GERMANY
+
+Current maintainer:
+	ppelissi@caramail.com

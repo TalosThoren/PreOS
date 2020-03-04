@@ -1,0 +1,364 @@
+       Title: Kernel Asm Program Format V6
+     Version: 0.35
+ Platform(s): TI-89, TI-92+, V200
+      Author: PpHd
+    Web Site: http://www.timetoteam.fr.st
+      E-Mail: ppelissi@caramail.com
+Release Date: 2003/07/29
+
+This document is designed for 1024x728 screen resolution.
+This document described the Kernel Program Format version 6.
+A Kernel Program v6 is an ASM program:
+ + The first 2 bytes defined the size of the program: sum of the size of the CODE section and 3.
+ + Then there is the entry point with 68000 code (The CODE section).
+ + Finally there are 3 bytes to define the end of the program: $00, $00 & $F3.
+As you can see, the AMS relocation list is empty.
+
+In the case of Kernel Format v6, the CODE section is composed of 5 sub-sections:
+        + The Header.
+        + The importation tables (Optionnal).
+        + The exportation table (Optionnal).
+        + The Program Loader.
+        + The code of the program.
+
+In this document, I will describe each sub-sections in details.
+
+I. The Header.
+--------------
+
+        The Header is the heart of a Kernel Program. Its size is fixed, and can't be changed.
+        All kernels programs have this static header, even older Kernel Programs (v2, v3 & v4).
+        So older programs can always access the comment of a new program.
+        The Header must be the first section of the CODE section!
+        
+        You can define both Program and Library in Kernel mode. The only difference between them is that
+        programs have an entry point (The _main function), whereas Libraries don't.
+        Both can export functions or variables, or have BSS blocs.
+
+        The first bytes of the Header are the jump to the loader code. In fact, it pushes the
+        address of the header on the stack (+ 4), then jumps to the loader code.
+
+        All files which have the signature '68k' must have this header.
+        A way to identify in C such a file is (assuming sym is the SYM_ENTRY of a file):
+                if (memcmp((char *)HeapDeref(sym->handle)+6,"68k",3) == 0)
+                        printf("The Kernel Header is defined for file %s\n", sym->name);
+
+        The _comment is an ANSI string, ie a string terminated by zero. The length of the string is free.
+
+        The _main function is the entry point of the program. It must be defined for every kernel programs,
+        but not for libraries. The function must looks like:
+                void    _main(void)
+                        {
+                        // Your stuff
+                        }
+        To terminate the program, just terminate the function.
+        The _main function is called only if there is no error during the relocation process.
+
+        The function with name _exit will be executed if and only if the program is terminated in an abnormal way,
+        for example if there was an error, or if the user aborted the program.
+
+        The version number is mainly used to identify outdated libraries. As you will see in the Importation Section, 
+        you can import some libraries and define a minimum version for a library. During the relocation, 
+        if the found library has a lower version than the requested version, the library won't be used. 
+        It prevents the program from using outdated and buggy libraries.
+        Change the version number only if there is a bug in a previous version of your library.
+        You can only define a version number from 0 to 255, so be carrefull! Do not increase your version number too often.
+        Do not change the version number if you add new functions in your libraries: it is useless.
+
+        Do not access parts of the Header which is described as internal.
+
+        All offsets described in this Header must start at an EVEN address, execpt _comment.
+
+        Here is a description of the Header:
+
+Label           Offset  Size                    Desc
+--------------------------------------------------------------------
+Origin          $0000   4       Bsr to the loader code (First instruction)
+                                        + Library : $4E754E75
+                                        + Program : $61000000 + (StubCode-Origin-2)
+Signa           $0004   4       Signature of the Kernel Format  
+                                        + Library : '68kL' FIXME: '68kD' will be better since it will avoid problems with outdated kernel ?
+                                        + Program : '68kP' FIXME: '68kA' """"
+KernelFormat    $0008   1       Kernel Format.
+                                        $01 (Always 1 for Kernel V6)
+Reloc           $0009   1       Reloc count (Internal)
+                                        $00 
+Comment         $000A   2       offset to _comment
+                                        _comment-Origin or 0 if there is no comment
+Main            $000C   2       offset to _main
+                                        _main-Origin or 0 if there is no main function
+Exit            $000E   2       offset to _exit
+                                        _exit-Origin or 0 if there is no exit function
+Version         $0010   1       Version number
+                                        A byte indicating the version number.
+Flags           $0011   1       Flags
+                                        bit 0 - runs on 92+ if set
+                                        bit 1 - runs on 89 if set
+                                        bit 2 - redraw the screen after the end of the program if clear
+                                        bit 3 - create a copy of the archived program if clear
+                                        bit 4 - runs on Ti-92 if set
+                                        bit 5 - runs on V200 if set
+HdBss           $0012   2       Handle of BSS block (Internal)
+                                        $00
+ImportOff       $0014   2       offset to Importation tables (Internal)
+                                        _importTab-Origin or 0 if there is no imported functions.
+ExportOff       $0016   2       offset to export table (Internal)
+                                        _exportTab-Origin or 0 if there is no exported functions
+ExtraRAMOff     $0018   2       offset to Extra RAM table (Internal)
+                                        _exportTab-Origin or 0 if there is no Extra-RamCalls
+
+
+II. The Importation Tables (Optionnal).
+---------------------------------------
+
+Contrary to Kernel v4, the importation tables don't start at the end of the Header.
+To get the start of the importation tables, you must use the internal variable ImportOff,
+which is an offet to get the address of the Importation Tables. 
+In kernel v4, this variable was BssOffset. But in v6, Bss Import Section has been merged with other import sections.
+It uses now compressed relocation tables, which are quite different from previous format.
+
+As a consequence, the Importation Tables may be anywhere in the CODE section (particulary at the end).
+
+Anyway, this section of the kernel format is a dynamic variable part.
+It is always composed of 5 linked sub-sections:
+        + Libraries import table.
+        + RomCalls import table.
+        + RamCalls import table (Kernel variables and functions).
+        + Program's Relocation table : a kernel program doesn't use EX_patch.
+        + BSS Relocation table.
+This section must be seen as a stream: each sub-section (index, relocation table, section)
+starts when the the previous end. It may start at an odd address.
+
+See Relocation Table chapter to see the internal format of a Relocation Table.
+
+The index are used to define the Library Function Number, or the RomCall Number (etc).
+They are stored in a byte (in general):
+        + If this byte is different from $FF & $FE, it is the difference with the previous index and one.
+So if c is the read byte, and i is the previous index, the new index is: i+c+1. 
+        + If this byte is equal to $FE, then you must read the next byte c to get the difference 
+with the previous index. So the new index is: i+c+255.
+        + If this byte is equal to $FF, then you must read the next word w (which may be at an odd address).
+to get the new index: the new index is w.
+As a consequence, the index must be stored in a ascendant way.
+
+The first index is 0xFFFF (So you can use 0 as the first used index by writting 0) and are technically an unsigned short.
+        
+
+
+        A. Libraries Import Table.
+        --------------------------
+
+        A kernel Program/Library can import the function of the libraries. Here is how it is stored:
+
+
+Label           Size            Desc
+--------------------------------------------------------------------
+LibNumber       Index           Library number (0 if there is no used library).
+
+LibName         10*LibNumber    Name of the libraries : an array of special string.
+                                For each library:
+                                        + 8 chars : Ascii Name of the library
+                                        + 1 char  : 0 (NULL string)
+                                        + 1 char  : Minimum version number
+
+LibImportTable  ????            The relocation tables of the libraries.
+                                For each library:
+                                        + 1 index : Number of the imported functions of this library (index from 0) minus one. 0.b means one imported function.
+                                        + For each imported functions:
+                                                + 1 index: Import Library Function number.
+                                                + A Compressed Relocation Table.
+
+        B. Romcalls Import Table.
+        -------------------------
+
+        Instead of using, ROMCALL macro, you can directly call TIOS functions.
+
+        + An Index:     Number of used RomCalls. 0 if there is no RomCalls.
+        + For Each RomCalls:
+                + 1 index: Index of the used RomCall.
+                + A Compressed Relocation Table.
+                                
+        C. Ramcalls Import Table.
+        -------------------------
+
+        They are Kernel specific functions and variables.
+
+        + An index:             Number of used RamCalls. 0 if there is no RomCalls.
+        + For Each RamCalls:
+                + 1 index: Index of the used RamCall:
+                        * Bit 0-13      : RAM_CALL number or EXTRA_RAMCALL number.
+                        * Bit 14        : Set if it is an "extra" RAM address (ie the kernel used the extra-ramcalls table of the program instead of its own table).
+                        * Bit 15        : Set if the variable to reloc is a word, clear if it is long word.
+                + A Compressed Relocation Table.
+        
+        D. Program Relocation Table.
+        ----------------------------
+
+        A Compressed Relocation Table (the used relocation address is the origin of the program).
+                                
+
+        E. BSS Relocation Table.
+        ------------------------
+
+        The BSS table is used for the unitialisaed global variables.
+        BSS bloc is an extra bloc which is not in the program itself allocated by the kernel when the program starts.
+        (Do not confused the BSS section and the BSS table section).
+        
+        + A Word:                               Size of the BSS bloc to allocate divide by 4 (0 is no BSS block).
+        + A Compressed Relocation Table:        The used relocation address is the origin of the allocated BSS block.
+
+	There is not Compressed Relocation Table is the size of the BSS bloc is 0.
+	
+
+III. The Export Table.
+----------------------
+
+	The Exportation Table may be anywhere in the CODE section (particulary at the end).
+        The exported functions table is the list of the accessible function from an outside program.
+        It is a table of offset from origin. It is stored UNCOMPRESSED (In fact, it can't be compressed like the others).
+  
+        + A word:       Number of exported functions.
+        + A table of offset to get the function address.
+
+
+IV. The EXTRA_RAM_TABLE (Optionnal).
+------------------------------------
+        
+        The Extra RAM address table (It is not suported yet by the linker).
+        It is an array of :
+                + 1 word : value for Ti-89
+                + 1 word : value for Ti-92p / Ti-92 / v200
+        There is no limit to this table.
+        It is stored uncompressed.
+
+
+V. The Loader Code.
+-------------------
+
+        The goal of the loader code is to see if there is a good kernel, and call its 'exec' function in this case.
+        The stub of this section may change but must be in similar spirits.
+        It must be in the first 32Kb of a program!
+
+        It must test if bit 31 of vector 34.l is set to see if the installed kernel supports Kernel Program V6.
+
+        An example of such a section:
+
+StubCode:       move.l  ($34).w,-(a7)		; Push vector 34 on the stack and check its sign
+                blt.s   \run			; If it is < 0, then it is ok.
+                addq.l  #8,a7			; Pop Kernel address and Header address
+        \run    rts				; Jump to pushed address: else the kernel, or else AMS.
+
+        Of course, you can display a message in case of an error.       
+
+
+VI. Compressed Relocation Table Format.
+---------------------------------------
+
+The compressed relocation table format is just like Fargo Compressed Relocation Table.
+As a good code is better than a bad explanation, here is a code to compress a relocation table:
+
+/* This code is released under GPL.
+ * Original Code by David Ellsworth
+ * Converted to C by PpHd
+ */
+
+static long DoNibbles(char *Data, long Offset, int nibble_count)
+{
+  long src = Offset -= nibble_count;
+  while (nibble_count >= 3) {
+    int n = (nibble_count - 1) / 2;
+    if (n > 4) n = 4;
+    nibble_count -= n * 2 + 1;
+    if (Data)
+      Data[Offset] = ((8 + n - 1) << 4) | (Data[src++] - 1);
+    Offset += 1;
+    if (Data) {
+      while (--n >= 0) {
+        Data[Offset++] = (((Data[src] - 1) << 4) |
+                         ((Data[src + 1] - 1)));
+        src += 2;
+      }
+    }
+    else
+      Offset += n;
+  }
+  if (Data) {
+    while (nibble_count > 0) {
+      Data[Offset++] = Data[src++];
+      nibble_count--;
+    }
+  }
+  else
+    Offset += nibble_count;
+  return Offset;
+}
+
+static int CmpLong(const void *e1, const void *e2)
+{
+        return (*(long *)e1) - (*(long *)e2);
+}
+
+static long DumpReloc(long Reloc[], long Num, char *Data, long Offset)
+{
+  long last = 0x24, i;
+  int nibble_count = 0;
+  
+  qsort(Reloc, Num, sizeof(long), CmpLong);
+  
+  for(i = 0 ; i < Num ; i++ ) {
+    unsigned short diff = (Reloc[i] - last) / 2;
+    while (TRUE) {
+      if (diff < 0x10) {
+        if (Data)
+                Data[Offset] = diff + 1;
+        Offset++;
+        nibble_count++;
+        break;
+      }
+      else {
+        Offset = DoNibbles(Data, Offset, nibble_count);
+        nibble_count = 0;
+        if (diff < 0x7F) {
+          if (Data)
+                Data[Offset] = diff + 1;
+          Offset++;
+          break;
+        }
+        else {
+          diff -= 0x7F;
+          if (diff > 0x3FFF) {
+            if (Data)
+                {
+                Data[Offset] = 0xFF;
+                Data[Offset+1] = 0xFF;
+                }
+            Offset += 2;
+            diff -= 0x3FFF;
+          }
+          else {
+            if (Data)
+                {
+                diff += 0xC000;
+                Data[Offset] = diff >> 8;
+                Data[Offset+1] = diff & 0xFF;
+                }
+            Offset += 2;
+            break;
+          }
+        }
+      }
+    }
+    last = Reloc[i] + 4;
+  }
+  Offset = DoNibbles(Data, Offset, nibble_count);
+  if (Data)
+        Data[Offset] = 0;
+  Offset += 1;
+  return Offset;
+}
+
+The first relocation offset is 0x24 which represents the sum of the size of the header section 
+and the size of the minimum Loader Section.
+
+
+END OF FILE

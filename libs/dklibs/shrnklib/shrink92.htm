@@ -1,0 +1,459 @@
+<html>
+<header>
+<title>Shrink92 - Documentation</title>
+</header>
+
+<body>
+
+<hr>
+<center>
+				<h1><u>SHRINK92 v1.00</u></h1>
+				by David Kühling 1998/99
+				<h1><u>SHRINK92 v1.00.P4</u></h1>
+</center>
+<p>
+<hr>
+
+<h2>Table of Contents</h2>
+<ul>
+  <li> <a href="#license">License</a>
+  <li> <a href="#introduction">Introduction</a>
+  <li> <a href="#shrink92">How to Use Shrink92</a>
+  <li> <a href="#shrinklib">How to Use <code>shrnklib</code> for Extraction</a>
+  <li> <a href="#trouble">Trouble Shooting</a>
+  <li> <a href="#example">An Example of Using Shrink92 and <code>shrnklib</code></a>
+  <li> <a href="#source">The Programs' Sourcecodes</a>
+  <li> <a href="#change">History</a>
+  <li> <a href="#contact">Contacting me</a>
+</ul>
+<p><hr>
+
+<a name="license"> <h2>License</h2> </a>
+
+SHRINK92 - Copyright 1998, 1999 David Kuehling <br>
+Adaptation for TI-89/92+ - Copyright 2002, 2003, 2004, 2005 Patrick Pelissier<br>
+<br>
+This file is part of the SHRINK92 Library.<br>
+<br>
+The SHRINK92 Library is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
+option) any later version.
+<br> <br>
+The SHRINK92 Library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details.
+<br> <br>
+You should have received a copy of the GNU Lesser General Public License
+along with the MPFR Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+MA 02111-1307, USA.
+<br>
+
+<a name="introduction"> <h2>Introduction</h2> </a>
+Shrink92 is a compression tool that is designed to reduce the size of Fargo programs by making it possible to compress binary data on your PC and uncompressing them on a TI-92 by the Fargo library <code>shrnklib</code>. It may also be used by other PC programs for text compressions and similar purposes. When you've allready used other compression libraries such as <code>hufflib</code>, <code>lzsslib</code> or <code>pk92lib</code> you won't have any problems with that library. In fact Shrink92 is superior to all those compression algorithms. It took me over a week to design the Shrink compression. It is a combination of an optimized LZSS, RLE and Huffman compression. As you will see compression is quite slow. But therefore uncompression runs very fast and compression ratios are sometimes almost Winzip - like. In case you already worked with Packer92, please don't judge my programing skills by that program. Packer92 was the first thing I programed for Fargo, it's more than a year ago, I was quite an amateur in these times. To convince you of Shrink92's power, here is a comparison of the most common algorithms, used by TI-92 programmers: (<dfn>ratio</dfn> specifies the difference of the original file to the compressed file, thus a greater ratio represents a better compression)
+
+<p>
+<center>
+<table border=1>
+  <tr> <th>Filename</th> <th>Size (bytes)</th> 
+       <th>Huffman</th> <th>LZSS</th> <th>Packer92</th> 
+       <th>Shrink92</th> </tr>
+  <tr> <td><code>traps.txt</code></td> <td align=right>5403</td> 
+       <td>3390 (ratio: 37.26%)</td> <td>2665 (ratio: 50.68%)</td> <td>2201 (ratio: 59.26%)
+       <td><strong>2141 (ratio: 60.37%)</strong><td> </tr>
+  <tr> <td><code>fargo.txt</code></td> <td align=right>47152</td>
+       <td>29220 (ratio: 38.03%)</td> <td>21410 (ratio: 54.59%)</td> <td>18080 (ratio: 61.66%)
+       <td><strong>16286 (ratio: 65.46%)</strong><td> </tr>
+  <tr> <td><code>fpl.92p</code></td> <td align=right>2035</td> 
+       <td>1902 (ratio: 6.54%)</td> <td>1759 (ratio: 13.56%)</td> <td>1859 (ratio: 8.65%)
+       <td><strong>1774 (ratio: 12.83%)</strong><td> </tr>
+  <tr> <td><code>db92.92p</code></td> <td align=right>12882</td>
+       <td>10232 (ratio: 20.57%)</td> <td>9534 (ratio: 25.99%)</td> <td>8882 (ratio: 31.05%)
+       <td><strong>8408 (ratio: 34.73%)</strong><td> </tr>
+  <tr> <td><code>bd.92p</code></td> <td align=right>14773</td>
+       <td>10736 (ratio: 27.33%)</td> <td>9636 (ratio: 34.77%)</td> <td>8465 (ratio: 42.70%)
+       <td><strong>8157 (ratio: 44.78%)</strong><td> </tr>
+  <tr> <td>some 3 plane picture</td> <td align=right>11520</td>
+       <td>6812 (ratio: 40.87%)</td> <td>7440 (ratio: 35.42%)</td> <td>6944 (ratio: 39.72%)
+       <td><strong>6370 (ratio: 44.70%)</strong><td> </tr>
+</table>
+</center>
+
+<p>
+As you can see, small files (about 2K) aren't compressed very efficent. This can be compensated by putting many small files into <em>one</em> archive. The structure of Shrink92 archives allows single files to be uncompressed without scanning through the rest of the archive, although different files in one archive partially use same compression data, thus optimize the total compression ratio. Shrink92 is also capable of creating an include file that will help you to access the archive.
+<p><hr>
+
+<a name="shrink92"> <h2>How to Use Shrink92</h2> </a>
+
+Shrink92 allways creates one <dfn>archive</dfn>. Archives may consist of one or more <dfn>sections</dfn>. Normally each section represents one input file (except you're using the <kbd>-m</kbd> option). Since archive sections partially share compression tables the compression ratio will (in most cases) increase when you create one archive with many sections instead of many archives with one section only.
+
+Actually Shrink92's syntax is quite simple:
+<p>
+<kbd>SHRINK92 <var>file1</var> <var>[file2]</var> <var>...</var> [-i<var>include-file</var>] [-o<var>output-file</var>] [-v] [-m]</kbd>
+
+<dl>
+  <dt><var>fileX</var>
+  <dd>
+    Name of an input file. May contain wildcards. You may specify up to 256 input files. Each input file will be stored into one archive section, except you're using the <kbd>-m</kbd> option.
+  <dt><kbd>-o<var>output-file</var></kbd>
+  <dd>
+    Specify the name of the output archive. Note that you mustn't type spaces between <kbd>-o</kbd> and <var>output-file</var>.
+  <dt><kbd>-i<var>include-file</var></kbd>
+  <dd>
+    Make Shrink92 to create an include file named <var>include-file</var>. This file will contain some equates that may help you to access the archive, especially when it consists of many sections or when you're using the <kbd>-m</kbd> option.
+  <dt><kbd>-m</kbd>
+  <dd>
+    Merge all input files and put them to <em>one</em> archive section. This method is similar to RAR's Solid archives. The resulting file will in most cases be smaller than the non-merged version. However, to access single files of the archive you will have to extract the <em>hole</em> archive. For this reason <kbd>-m</kbd> is only helpful when you're working with many small files. When you're using <kbd>-m</kbd>, the type of the include file (<kbd>-i</kbd> option) will be different. Shrink92 will define one <code>EQU</code>ate for each file. This <code>EQU</code>ate contains the relative offset of that file within archive section #0, where all the files are stored. Example: You compressed <code>picture1.raw</code> and <code>picture2.raw</code> with the <kbd>-m</kbd> option and created an include file. This include file contains the two <code>EQU</code>ates <code>PICTURE1.RAW</code> and <code>PICTURE2.RAW</code>. After you extracted archive section #0 that contains these two files, <code>A0</code> pointes to the memory region where the two extracted pictures are. You may now access each single picture by <code>PICTURE1.RAW(a0)</code> and <code>PICTURE2.RAW(a0)</code> (of course you will have to <code>INCLUDE</code> the include file that you've created).
+  <dt><kbd>-v</kbd>
+  <dd>
+    This option was originally programed for debugging purposes. I kept it in Shrink92 for all those people who are afraid of bugs. <kbd>-v</kbd> will make Shrink92 to verify the archive's contents. This is done by extracting each section of the archive and comparing it with the source. In case that an error is reported during verification please contact me. (Although it is very unlikely that there are still bugs...).
+</dl>
+
+<p><hr>
+
+<a name="shrinklib"> <h2>How to Use <code>shrnklib</code> for Extraction</h2> </a>
+
+The <code>shrnklib</code> library contains only 3 routines:
+<dl>
+  <dt><code>shrnklib::OpenArchive</code>
+  <dd>
+    Opens the archive pointed by <code>A0</code> for access, returns an archive descriptor handle in <code>D0</code>. That archive descriptor contains some compression data that only need to be extracted once - it would be inefficent to extract them for each file again. The archive descriptor also contains the pointer to the archive data. For this reason you only need <code>D0</code> for specifying the archive you want to access. <code>A0</code> isn't required any more.
+  <dt><code>shrnklib::CloseArchive</code>
+  <dd>
+    Closes the archive, specified by the archive descriptor handle <code>D0</code>. This will free all memory that is used by the archive descriptor. The handle becomes invalid.
+  <dt><code>shrnklib::Extract</code>
+  <dd>
+    Extracts the section, specified by <code>D1</code>, of the archive whose descriptor handle is given by <code>D0</code>. You may specify the destination in memory where to extract the data to by <code>A0</code>. If you set <code>A0</code> to zero <code>shrnklib::Extract</code> will automatically allocate sufficient memory and return the handle of the allocated block in <code>D2</code> and it's address in <code>A0</code>.
+</dl>
+Further information are contained in <code>shrnklib.h</code>.
+<p><hr>
+
+<a name="trouble"> <h2>Trouble Shooting</h2> </a>
+Here is a list of mistakes you could do when using Shrink92:
+
+<ul>
+  <li> Your archive isn't aligned at an even address. This will result in an address error. To align your archive add <code>EVEN</code> before the the label that's used to address the archive.
+  <li> Your Fargo program is greater than 32K. This will crash your calc, or at least cause some run time error. If you want to use very huge archives, try to put them into extra libraries or other separate variables.
+  <li> One section of your archive is greater than 32767 bytes. Theoretially the archive format supports sizes of up to 65535 bytes, but <code>shrnklib</code> doesn't. I will perhaps add support for great archive sections in a future version... (P.P. : Now it works !!!)
+</ul>
+If you can't find the mistake, and you start thinking about bugs in Shrink92 or <code>shrinklib</code>, use the <kbd>-v</kbd> option when compressing the files. This will make Shrink92 to verify the archive's contents. In case that the created archive is somehow wrong (the uncompressed archive doesn't match the source) you'll get an error message. Please contact me if this happens.
+<p><hr>
+
+
+<a name="example"> <h2>An Example of Using Shrink92 and <code>shrnklib</code></h2> </a>
+
+In this example you want to compress a 3 plane picture and display it on your calculator by the <code>gray7lib</code> library. The 3 planes are given separated in the files <code>picture0.1pl</code>, <code>picture1.1pl</code> and <code>picture2.1pl</code>. To display the picture these planes have to be put to the equivalent planes of <code>gray7lib</code>. I gained that pictures by converting a <code>.TGA</code> file by <cite>UGPConv</cite> and separating the planes by a hex editor, however this is irrelevant for that example. Note that I didn't optimized the example programs very much, since I wanted to make them as overviewing as possible. First of all I want to show you how the program would look like if you didn't compress the pictures:
+<p>
+<hr size=1>
+<font color=#000080><code><pre>
+	INCLUDE "flib.h"
+	INCLUDE "gray7lib.h"
+	
+	XDEF	_main
+	XDEF	_comment
+
+;-----------------------------------------------------------------------------
+; Copy one plane (3840 bytes) from (a1) to (a2)
+;-----------------------------------------------------------------------------
+CopyPlane:
+	move.w	#3840/4-1,d7		; d7 is our counter
+\Loop:	move.l	(a1)+,(a2)+
+	dbra	d7,\Loop		; loop back until d7 reaches -1
+	rts
+
+;-----------------------------------------------------------------------------
+; MAIN
+;-----------------------------------------------------------------------------
+_main:	jsr	gray7lib::on		; switch 7 shade grayscale on
+	tst.l	d0			; if d0.l = zero: failure
+	beq	\Error
+
+	; copy plane #2 to gray7lib::plane2
+	lea	Plane2(PC),a1		; load address of source plane 
+	movea.l	gray7lib::plane2,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+	; copy plane #1 to gray7lib::plane1
+	lea	Plane1(PC),a1		; load address of source plane 
+	movea.l	gray7lib::plane1,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+	; copy plane #0 to gray7lib::plane0
+	lea	Plane0(PC),a1		; load address of source plane 
+	movea.l	gray7lib::plane0,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+	jsr	flib::idle_loop		; wait for keypress
+
+	jsr	gray7lib::off		; disable 7 shade grayscale
+
+\Error:	rts				; exit program
+	
+
+; here are the 3 planes, added binary to the program
+	EVEN
+Plane0:	INCBIN "picture0.1pl"
+Plane1:	INCBIN "picture1.1pl"
+Plane2:	INCBIN "picture2.1pl"
+
+_comment:	dc.b	"Displays an uncompressed pic",0
+	END
+</pre></code></font>
+<hr size=1><p>
+
+Now we move on to the first possiblity to compress the data: Creating an archive with 3 sections, each section containing one plane. Section #0 will contain plane #0, section #1 will contain plane #1 and so on. To do the compression, type the following from the DOS command line:
+<p>
+<kbd>shrink92 picture?.1pl -oarchive1.shk -iarchive1.inc</kbd>
+<p>
+This will create an archive named <code>archive1.shk</code>, containing the planes. Note: if you're using wildcards like the <kbd>?</kbd> in the above example the files will be loaded in alphabetical order. The include file <code>archive1.inc</code> that is also created will consist of <code>EQU</code>ates that contain the number of the section each file is stored in, and each section's length:
+<p>
+<center>			<code>archive1.inc</code> </center>
+<hr size=1>
+<font color=#000080><code><pre>
+;=============================================================================
+; Include file automatically created by SHRINK92   Fri Jan  8 09:09:35 1999
+; Purpose: access of archive `archive.shk'
+; That archive consists of 3 files in 3 sections.
+;=============================================================================
+
+PICTURE0.1PL       EQU       0  ; index of archive section
+PICTURE0.1PL_LEN   EQU    3840  ; length of file
+PICTURE1.1PL       EQU       1  ; index of archive section
+PICTURE1.1PL_LEN   EQU    3840  ; length of file
+PICTURE2.1PL       EQU       2  ; index of archive section
+PICTURE2.1PL_LEN   EQU    3840  ; length of file
+</pre></code></font>
+<hr size=1><p>
+
+Displaying the pictures is now very simple: Each section has to be extracted to the corresponding gray plane of <code>gray7lib</code>. The section, whose index is given by the <code>EQU</code>ate <code>PICTURE0.1PL</code> has to be uncompressed to <code>gray7lib::plane0</code>, the section, specified by <code>PICTURE1.1PL</code> to <code>gray7lib::plane1</code> and so on. The resulting program will look like:
+<p>
+<center> 			<code>examp1e1.asm</code> </center>
+<hr size=1>
+<font color=#000080><code><pre>
+	INCLUDE "flib.h"
+	INCLUDE "gray7lib.h"
+	INCLUDE "shrnklib.h"
+
+	; include file that was automatically created by Shrink92
+	INCLUDE "archive1.inc"
+
+	XDEF	_main
+	XDEF	_comment
+
+_main:	jsr	gray7lib::on		; switch 7 shade grayscale on
+	tst.l	d0			; if d0.l = zero: failure
+	beq	\Error
+
+	; open the archive
+	lea	Archive(PC),a0		; load addresss of archive into a0
+	jsr	shrnklib::OpenArchive	; return: d0.w = archive descriptor handle
+
+	; extract plane #2 of picture
+	moveq	#PICTURE2.1PL,d1	; d1 = index of archive section to extract
+	movea.l	gray7lib::plane2,a0	; extraction destination is plane #2
+	jsr	shrnklib::Extract	; do the extraction
+
+	; extract plane #1 of picture
+	moveq	#PICTURE1.1PL,d1	; d1 = index of archive section to extract
+	movea.l	gray7lib::plane1,a0	; extraction destination is plane #1
+	jsr	shrnklib::Extract	; do the extraction
+
+	; extract plane #0 of picture
+	moveq	#PICTURE0.1PL,d1	; d1 = index of archive section to extract
+	movea.l	gray7lib::plane0,a0	; extraction destination is plane #0
+	jsr	shrnklib::Extract	; do the extraction
+
+	jsr	shrnklib::CloseArchive	; close the archive whose handle is given
+					; by d0 (d0 is still the descriptor handle)
+
+	jsr	flib::idle_loop		; wait for keypress
+
+	jsr	gray7lib::off		; disable 7 shade grayscale
+
+\Error:	rts				; exit program
+	
+
+	; shrink archive containing the 3 planes in 3 archive sections
+Archive:	INCBIN "archive1.shk"
+
+_comment:	dc.b "Shrink92 Example #1",0
+
+	END
+</pre></code></font>
+<hr size=1><p>
+
+After the archive has been opened by <code>shrnklib::OpenArchive</code>, <code>d0</code> will be the archive descriptor handle. During the extraction the value of <code>d0</code> isn't modified any more, since it is required as input for the <code>shrnklib::Extract</code> and the <code>shrnklib::CloseArchive</code> routine (look <code>shrnklib.h</code>). The rest of the program should be self explaining. This method of compressing each plane of a picture into a separated archive section needs very few memory. 7680 bytes for 7 shade grayscale, about 1.2 K temporarily during the <code>shrnklib::OpenArchive</code> routine, and 1-2K are used by the archive descriptor handle. 
+<p>
+When I said that this was the first possiblity then there's of course a second one. This one needs a little more memory but the archive is in most cases smaller. In this case we put all planes into <em>one</em> archive section. So we have one great archive section instead of 3 small ones. That's why in most cases the compression ration is better. Unfortunately I chose the example pictures <code>picture0.1pl</code> - <code>picture2.1pl</code> very badly - they became a little greater when using that method :-(. But remember that this is only an example, normaly files will become smaller. To put all files into one section you'll have to use the <kbd>-m</kbd> option. This will make Shrink92 to merge the input files before creating the archive. Type the following from the command line:
+<p>
+<kbd>shrink92 picture?.1pl -oarchive2.shk -iarchive2.inc -m</kbd>
+<p>
+When you're using the <kbd>-m</kbd> option Shrink92 will create a different kind of include file. Instead of creating one <code>EQU</code>ate for each file, that contains the index of the section the file is stored in, Shrink92 will create one <code>EQU</code>ate for each file that contains the offset of that file within archive section #0, where all files are contained in. In the current example the include file looks like:
+<p>
+<center>			<code>archive2.inc</code> </center>
+<hr size=1>
+<font color=#000080><code><pre>
+;=============================================================================
+; Include file automatically created by SHRINK92   Fri Jan  8 09:43:48 1999
+; Purpose: access of archive `archive2.shk'
+; That archive consists of 3 files in 1 section.
+;=============================================================================
+
+PICTURE0.1PL       EQU       0  ; offset of file in archive section #0
+PICTURE0.1PL_LEN   EQU    3840  ; length of file
+PICTURE1.1PL       EQU    3840  ; offset of file in archive section #0
+PICTURE1.1PL_LEN   EQU    3840  ; length of file
+PICTURE2.1PL       EQU    7680  ; offset of file in archive section #0
+PICTURE2.1PL_LEN   EQU    3840  ; length of file
+</pre></code></font>
+<hr size=1><p>
+This means that after we have extracted section #0, and <code>a0</code> points to the extracted data, we may access the planes separated by <code>PICTURE0.1PL(a0)</code> up to <code>PICTURE2.1PL(a0)</code>. To uncompress section #0 we need a memory block of 11520 bytes (size of one plane * 3). If we don't want to allocate it ourselves we can make <code>shrnklib::Extract</code> to do it for us, by setting the destination pointer <code>a0</code> to zero. In that case <code>shrnklib::Extract</code> will return the handle of the allocated memory block in <code>d2</code> and the pointer in <code>a0</code>. Here is the program's source:
+<p>
+<center> 			<code>examp1e1.asm</code> </center>
+<hr size=1>
+<font color=#000080><code><pre>
+	INCLUDE "tios.h"
+	INCLUDE "flib.h"
+	INCLUDE "gray7lib.h"
+	INCLUDE "shrnklib.h"
+
+	; include file that was automatically created by Shrink92
+	INCLUDE "archive2.inc"
+
+	XDEF	_main
+	XDEF	_comment
+
+;-----------------------------------------------------------------------------
+; Copy one plane (3840 bytes) from (a1) to (a2)
+;-----------------------------------------------------------------------------
+CopyPlane:
+	move.w	#3840/4-1,d7		; d7 is our counter
+\Loop:	move.l	(a1)+,(a2)+
+	dbra	d7,\Loop		; loop back until d7 reaches -1
+	rts
+
+;-----------------------------------------------------------------------------
+; MAIN
+;-----------------------------------------------------------------------------
+_main:	jsr	gray7lib::on		; switch 7 shade grayscale on
+	tst.l	d0			; if d0.l = zero: failure
+	beq	\Error
+
+	; open the archive
+	lea	Archive(PC),a0		; load addresss of archive into a0
+	jsr	shrnklib::OpenArchive	; return: d0.w = archive descriptor handle
+
+	; extract section #0 that contains all planes
+	moveq	#0,d1			; d1 = index of archive section to extract
+	movea.l	#0,a0			; a0 = 0: 'Extract' has to allocate memory
+	jsr	shrnklib::Extract	; do the extraction
+					; ->a0.l points to allocated extraction memory
+					; ->d2.l is the handle of that memory block
+
+	jsr	shrnklib::CloseArchive	; close the archive whose handle is given
+					; by d0 (d0 is still the descriptor handle)
+
+	; copy plane #2 to gray7lib::plane2
+	lea	PICTURE2.1PL(a0),a1	; load address of plane within extracted block
+	movea.l	gray7lib::plane2,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+	; copy plane #1 to gray7lib::plane1
+	lea	PICTURE1.1PL(a0),a1	; load address of plane within extracted block
+	movea.l	gray7lib::plane1,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+	; copy plane #0 to gray7lib::plane0
+	lea	PICTURE0.1PL(a0),a1	; load address of plane within extracted block
+	movea.l	gray7lib::plane0,a2	; load destination address
+	bsr	CopyPlane		; copy the plane from (a1) to (a2)
+
+  	; free the memory that was allocated for extracting section #0
+	move.w	d2,-(a7)		; d2 is still the handle (look shrnklib::Extract)
+	jsr	tios::HeapFree
+	addq.l	#2,a7
+
+	jsr	flib::idle_loop		; wait for keypress
+
+	jsr	gray7lib::off		; disable 7 shade grayscale
+
+\Error:	rts				; exit program
+	
+
+	; shrink archive containing the 3 planes in 1 archive section
+Archive:	INCBIN "archive2.shk"
+
+_comment:	dc.b "Shrink92 Example #2",0
+
+	END
+</pre></code></font>
+<hr size=1><p>
+
+Ok, that's it. I hope you understood everything. Just a little note on the examples: You'll perhaps have to specify absolute include paths for <code>INCLUDE</code> and <code>INCBIN</code>. If you want to recompile the example files, included with Shrink92, you'll need to change the include paths in those files.
+<p>
+<hr>
+
+<a name="#source"> <h2>The Programs' Sourcecodes</h2> </a>
+
+The C-sourcecode of Shrink92 consists of:
+<dl>
+  <dt> <code>SHRINK.C</code>
+    <dd> The compression algorithm.
+  <dt> <code>SHRINK92.C</code>
+    <dd> The command line interface to the compression routines of <code>SHRINK.C</code>.
+  <dt> <code>SHRINK.H</code>
+    <dd> The header file that contains prototypes and descriptions of all important routines of <code>SHRINK.C</code>.
+</dl>
+
+Since I used the DJGPP GNU C compiler, you should be able to compile Shrink92 for Linux. If you're doing so, don't forgot to switch optimisations on. The <kbd>-o2</kbd> option of my C compiler incrased Shrink92's speed by factor 2.
+
+<a name="change"> <h2>History</h2> </a>
+<dl>
+  <dt> <b>V 1.00</b>
+    <dd> Original version by David Kühling
+  <dt> <b>V 1.00.P1</b>
+    <dd> Version by Patrick Pelissier :
+    	<dl>
+    		<dt> <dd> Optimise the code (shorter).
+    		<dt> <dd> Port to ti-89/92/92+.
+		<dt> <dd> One section of your archive can be greater than 32767 bytes.
+	</dl>
+  <dt> <b>V 1.00.P2</b>
+    <dd> Version by Patrick Pelissier :
+    	<dl>
+		<dt> <dd> Fix a bug if the archive is greater than 32767 bytes.
+	</dl>
+  <dt> <b>V 1.00.P3</b>
+    <dd> Version by Patrick Pelissier :
+    	<dl>
+		<dt> <dd> Add Kernel Pack Archive function.
+	</dl>
+  <dt> <b>V 1.00.P4</b>
+    <dd> Version by Patrick Pelissier :
+    	<dl>
+		<dt> <dd> Fix bug (Forget to lock HANDLE).
+		<dt> <dd> Modify License to LGPL
+	</dl>
+</dl>
+
+
+<a name="contact"> <h2>Contacting me</h2> </a>
+
+If you have question, suggestions, comments or bug reports don't hesitate to
+ mail me! My email is <a href="mailto:dvdkhlng@gmx.de">dvdkhlng@gmx.de</a>.
+Here's my normal mail address:
+<blockquote>
+	David Kühling<br>
+	Lion-Feuchtwanger-Str. 44<br>
+	12619 Berlin<br>
+	GERMANY<br>
+</blockquote>
+
+When you succeed in making a program that uses <code>shrnklib</code>, please send me a copy of it, no matter if it seems to be good!
+<br> <br>
+Current maintainer address: 
+ <a href="mailto:ppelissi@caramail.com">ppelissi@caramail.com</a>
+</body>
+</html>

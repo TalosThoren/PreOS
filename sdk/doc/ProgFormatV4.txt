@@ -1,0 +1,227 @@
+       Title: Kernel Asm Program Format
+     Version: 0.70
+ Platform(s): TI-89, TI-92+, V200
+      Author: PpHd
+    Web Site: http://www.timetoteam.fr.st
+      E-Mail: ppelissi@caramail.com
+Release Date: 2004/06/10
+
+This document is designed for 1024x728 screen resolution.
+To avoid being too boring, there is some lack in the provided information.
+For example, the index of the library name table and the index of the library reloc-import table are implicitely the same.
+
+
++-------------------------------+
+|       File 68kP / 68kL        |
++-------------------------------+
+
+++++++++++++++++++++++++++++
+++++    STATIC HEADER   ++++
+++++++++++++++++++++++++++++
+
+        All kernels programs have this static header.
+        
+Label           Offset  Size                    Desc
+--------------------------------------------------------------------
+Origin          $0000   4       Bsr to the loader code
+                                        + Library : $4E754E75
+                                        + Program : $61000000 + (stubCode-Origin-2)
+Signa           $0004   4       Signature of the Kernel Format  
+                                        + Library : '68kL'
+                                        + Program : '68kP'
+				All files with 68k? should have the static header.
+Internal        $0008   1       Internal Kernel Format (If it is != 0, kernel won't run the program).
+                                        $00 (Always 0)
+Reloc           $0009   1       Reloc count
+                                        $00 (Used internally by the kernel)
+Comment         $000A   2       offset to _comment
+                                        _comment-Origin or 0 if there is no comment
+Main            $000C   2       offset to _main
+                                        _main-Origin or 0 if there is no main function
+Exit            $000E   2       offset to _exit
+                                        _exit-Origin or 0 if there is no exit function
+Version         $0010   1       Version number
+                                        A byte indicating the version number.
+Flags           $0011   1       Flags
+                                        bit 0 - runs on 92+ if set
+                                        bit 1 - runs on 89 if set
+                                        bit 2 - Do not redraw the screen after the end of the program if set
+                                        bit 3 - Do not make a copy of the program (If it is archived) : Read only if set
+                                        bit 4 - runs on Ti-92 if set
+                                        bit 5 - runs on V200 if set
+                                        bit 6 - runs on ti-89ti if set
+HdBss           $0012   2       Handle of BSS block (Used internally by the kernel)
+                                        $00
+BssOff          $0014   2       offset to BSS table
+                                        _bssTab-Origin or 0 if there is no Bss
+ExportOff       $0016   2       offset to export table
+                                        _exportTab-Origin or 0 if there is no exported functions
+ExtraRAMOff     $0018   2       offset to Extra RAM table
+                                        _exportTab-Origin or 0 if there is no Extra-RamCalls
+
+
+++++++++++++++++++++++++++++
+++++    DYNAMIC HEADER  ++++
+++++++++++++++++++++++++++++
+
+The next part of the kernel header is a dynamic variable part.
+It is always composed of 4 linked sections :
+        + Libraries import table : list of the used libraries and some info about the relocation process.
+        + RomCalls import table.
+        + RamCalls import table (Kernel variables and functions).
+        + Program's Relocation table : a kernel program do not use EX_patch.
+Each section starts where the previous end.
+The first section starts after the static header.
+
+Label           Size            Desc
+--------------------------------------------------------------------
+
+SECTION 1                       Import table of the used libraries.
+NLib            2               Used library number (0 if there is no used library).
+LibName         10*NLib         Name of the libraries : an array of special string.
+                                'NLib' times :
+                                        + 8 chars : Ascii Name of the library
+                                        + 1 char  : 0 (NULL string)
+                                        + 1 char  : Minimum version number
+LibImport       ????            The reloc tables of the libraries.
+                                'NLib' times :
+                                        + 1 word : Number of the imported functions of this library minus 1.
+                                        + Number of imported functions times :
+                                                + 1 word : Import Library Function number.
+                                                + A reloc table.
+
+SECTION 2                       Import table of the RomCalls.
+IsRomCall       2               0 if there is no RomCall, otherwise 1.
+NumRomCall      2               Number of used RomCalls minus 1.
+                ?????           Number of RomCalls times:
+                                        + 1 word : Number of the used RomCall.
+                                        + A reloc table.
+                                
+SECTION 3                       Import table of the Kernel variables and functions (RamCall Table).
+IsRamCall       2               0 if there is no RamCall, otherwise 1.
+NumRamCall      2               Number of used RamCalls minus 1.
+                                Number of used RamCalls times:
+                                        + 1 word : RamCall number and type :
+                                                * Bit 0-13      : RAM_CALL number or EXTRA_RAMCALL number.
+                                                * Bit 14        : Set if it is an "extra" RAM address (ie the kernel used the extra-ramcalls table of the program instead of its own table).
+                                                * Bit 15        : Set if the variable to reloc is a word, clear if it is long word.
+                                        + A reloc table.
+
+SECTION 4                       Relocation table of the program (to access the global variables).
+                ????            A reloc table (the address is the origin of the program).
+                                
+++++++++++++++++++++++++++++++++++++
+++++    EXTRA DYNAMIC HEADER    ++++
+++++++++++++++++++++++++++++++++++++
+
+The next part of the kernel header is an extra dynamic variable part.
+It is always composed of 3 sections. Each section is access by using the corresponding offset in the static header.
+
+Label           Size            Desc
+--------------------------------------------------------------------
+
+BSS_TABLE                       The BSS table is used for the unitialisaed global variables.
+                                The BSS section is an extra section which is not in the program itself 
+                                but allocated by the kernel when the program starts.
+                                (Do not confused the BSS section and the BSS table section).
+BssSize         4               Size of the BSS bloc to allocate (May be > 64K on PedroM. Nevertheless, you can not access variables with an offset > 64k).
+                                A reloc table (the address if the origin of the BSS bloc).
+                
+EXPORT_TABLE                    The exported functions table.
+                2               Number of exported functions.
+                                A table of offset to get the function address (offset from origin).
+
+EXTRA_RAM_TABLE                 The Extra RAM address table (It is not suported yet by the linker).
+                                It is an array of :
+                                        + 1 word : value for Ti-89
+                                        + 1 word : value for Ti-92p / Ti-92 / v200
+                                There is no limit to this table.
+                                
+++++++++++++++++++++++++++++
+++++    STUB CODE       ++++
+++++++++++++++++++++++++++++
+stubCode
+        + Normal stub : it is the folowing code :
+                move.l  ($34).w,-(a7)
+                bne.s   \run
+                addq.l  #8,a7
+        \run    rts
+        which corresponds to this hexa chain :
+                0x2F,0x38,0x00,0x34,0x66,0x02,0x50,0x8F,0x4E,0x75
+
+        + MiStub Stub:
+                move.l  ($34).w,-(a7)
+                beq.s   \error
+                rts
+        error   addq.l  #8,a7
+        which corresponds to this hexa chain :
+                0x2F,0x38,0x00,0x34,0x67,0x02,0x4E,0x75,0x50,0x8F
+                
+++++++++++++++++++++++++++++
+++++    END OF FILE     ++++
+++++++++++++++++++++++++++++
+
+AMSReloc        2       0
+ASMSigna        1       $F3
+
+
++---------------------------------------------------------------+
+|                       RelocTable Format                       |
++---------------------------------------------------------------+
+
+A null terminated list of offset (Word) from _origin 
+which have to be relocated with this address.
+
+'relocated' means that the kernel adds at the specified address (long word)
+the value of the address of origin.
+'unrelocated' means that the kernel subs at the specified address (long word)
+the value of the address of origin.
+
++---------------------------------------------------------------+
+|       File 68cA (Only supported by Preos at this moment)      |
++---------------------------------------------------------------+
+        bsr.s   Loader
+Begin   dc.l    '68cA'
+Loader  move.l  ($50).w,-(a7)
+        bne.s   Ok
+        addq.l  #8,a7
+Ok      rts
+        
+        dc.b    NumberOfFileInPack
+        dc.b    LibraryMinVersion
+        dc.b    LibraryFunctionNumber
+        
+        dc.b    'complib',0     ; Name of the decompressing library
+        dc.b    'file1',0
+        dc.b    'file2',0
+        ...
+        dc.b    'filen',0
+        EVEN
+Pack    incbin  "pack.bin"
+        END
+
+        The first file of an archive pack is an executable.
+        You can run it from home or from an explorer just by running the archive.
+        The other files can be accessed using kernel::ExtractFile function.
+        They can be also libraries.
+        
+        If the file name looks like :
+                dc.b    '!',xx,yy,"file10',0
+        Then the file is stored uncompressed in the Pack Archive. The offset to get the data from 'Begin' is yyxx.
+        Warning the offset may be unaligned and it is in Big Endian format. It may contains 0, so you should always skip 2 bytes if you read a '!'.
+        
+        As a consequence, the compressing library may be also in the Pack Archive, stored uncompressed !
+        
+        4 file names are special for a Pack Archive :
+                + 'comment' : It is a String File which is the comment of the Pack Archive.
+                + 'icon' : It is a Bitmap File which is the icon of the Pack Archive.
+                + 'author' : It is a String File which is the author name of the Pack Archive.
+                + 'version' : It is a String File which is the version of the Pack Archive. The format is 'MM.mm.dd.cc'.
+        See other docs for format of string file / bitmap file.
+        They can be stored compressed/uncompressed.
+        To get then, use this (for example) :
+                CommentH = kernel__ExtractFileFromPack( CurrentFileHandle, "comment");
+                DrawStr(0,0, ((char *) HeapDeref(CommentH))+3, A_NORMAL);
+                HeapFree(CommentH);
+
+END OF FILE

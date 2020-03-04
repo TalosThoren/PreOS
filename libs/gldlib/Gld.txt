@@ -1,0 +1,96 @@
+ PREGLDLIB 0.41 - Copyright 2001, 2002, 2003, 2004, 2005 Patrick Pelissier
+
+ This file is part of the PREGLDLIB Library.
+
+ The PREGLDLIB Library is free software; you can redistribute it and/or modify
+ it under the terms of the GNU Lesser General Public License as published by
+ the Free Software Foundation; either version 2.1 of the License, or (at your
+ option) any later version.
+
+ The PREGLDLIB Library is distributed in the hope that it will be useful, but
+ WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+ License for more details.
+
+ You should have received a copy of the GNU Lesser General Public License
+ along with the MPFR Library; see the file COPYING.LIB.  If not, write to
+ the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+ MA 02111-1307, USA.
+
+--------------
+I-Introduction
+--------------
+	
+	Gld is an anlyser of crash. If your program crashes, it will display to you a lot of information about your crash.
+
+----------------
+II. Compilation
+----------------
+
+	To assemble a file toto.asm, you have to do :
+	
+	+ a68k toto.asm -g -t -f -iC:\Ti\Include -d!\
+	+ makeprgm toto
+
+	Make sure you have added the '-d' flag to add the debug information in the object file !
+	
+	If you want you can use the batch file, asm92p89, instead :
+	
+	+ asm92p89 toto
+	
+	To configure it, just add :
+	
+	SET PS_BIN=C:\Ti\bin
+	SET PS_INCLUDE=C:\Ti\Include
+
+	to 'autoexec.bat', copy a68k.exe and makeprgm.exe to C:\Ti\Bin and reboot your computer.
+	
+----------------
+II. Execution
+----------------
+
+	To execute a program, just call it :
+		gld("toto")
+	in your home entry. That's all.
+	
+	For example, calls : gld("gendtest")
+	
+	When it crashes,
+		you have 4 windows. You can select your window with Left / Right
+
+		+ Registers window : It dislays the registers, and the source of the crash.
+		+ Dump Windows : It displays the memory pointed by the address registers.
+		+ Function Called Windows : It displays the list of the called functions by the program. The first entry is the function which has caused the crash.
+		+ Trace window : It displays all the trace entries.
+		
+
+----------------
+II. Assembling
+----------------
+	
+	To add the debug information, you have to follow the previous paragraph.
+	But you have to modify a few your program :
+	
+	Add the following lines to your program.
+	
+	DEBUG	EQU	1
+		include "gld.h"
+		
+	It will define the debug flag (" xdef _debug") and define some macros:
+	
+		TRACE_FUNC
+			In the trace window, you will see the name of the current function.
+		TRACE_NBR #100
+			In the trace window, you will see this number AND $7FFFFFFF.
+		TRACE_STR Name_of_string
+			In the trace window, you will see this string.
+	It will add some calls to Gld.
+	
+	If you don't define DEBUG :
+
+	;DEBUG	EQU	1
+		include "gld.h"
+	
+	The macros will be defined but they do nothing. No debug informations will be created.
+	
+	

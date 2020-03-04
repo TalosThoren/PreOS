@@ -1,0 +1,258 @@
+*****************************************************************************
+* 		     BrwseLib - The File Browser Library		    *
+*		                    by					    *
+*		  	     David Kühling 1998				    *
+*			   Port to 89/92+ by PpHd			    *
+*****************************************************************************
+
+brwslib is under LGPL. See COPYING.LIB for details.
+
+Bugs, questions, suggestions, comments etc.: mail me!
+
+Email:	ppelissi@caramail.com (Port to TI-89/92+ and bug fixes).
+Original author: dvdkhlng@gmx.de
+
+Thanks to
+	David Ellsworth
+	The people of ticalc.org
+	Tleilax for DB92
+	Jonas Minnberg for the Tiger Emulator
+
+==============================================================================
+
+BrwseLib is a library that contains some 'menu' routines and a Browser
+routine, which lets the user choose a file, similar to FBrowser. The
+BrowseLib Browser supports file filtering, displaying file informations and
+operations to the chosen file by callback routines. BrwseLib.h should contain
+sulficient information on the routines. For all of you who aren't very used
+to Kernel, here is a short examples of how to use BrwseLib.
+
+
+Let's say you want to program a Kernel Program Launcher. Here is the easiest
+method, using BrwseLib's Browse-routine:
+
+-----------------------------------------------------------------------------
+
+	INCLUDE "tios.h"
+	INCLUDE "brwselib.h"
+
+	XDEF	_main
+	XDEF	_comment
+	XDEF	_ti89
+	XDEF	_ti92plus
+	
+_main:	lea	_comment(PC),a4		; a4 points to title of browser window
+	suba.l	a0,a0			; a0 = 0 (no filter callback routine)
+	suba.l	a1,a1			; a1 = 0 (no info callback routine)
+	suba.l	a5,a5			; a5 = 0 (no enter-pressed callback r.)
+
+	jsr	brwselib::Browse	; returns: d0.w = handle of chosen file
+
+	tst.w	d0			; if d0.w = 0: browser was quit by ESC
+	beq	\BrowserQuit
+
+	jsr	kernel::exec		; execute the chosen program (Handle = d0.w)
+
+\BrowserQuit:
+	rts
+
+_comment:	dc.b "My Program Launcher",0
+	END
+
+-----------------------------------------------------------------------------
+
+The problem of this browser is, that it displays all files, instead of only
+the Kernel programs. The following example filters the files that are
+displayed, by a filter callback routine:
+
+-----------------------------------------------------------------------------
+
+	INCLUDE "tios.h"
+	INCLUDE "brwselib.h"
+
+	XDEF	_main
+	XDEF	_comment
+	XDEF	_ti89
+	XDEF	_ti92plus
+
+;----------------------------------------------
+; Callback routine, that checks, whether a file is a Fargo program
+; Input:
+;   d0.w = handle of file
+; Output:
+;   d4.w = Don't add this file to the list?
+FargoFilter:
+	tios::DEREF	d0,a0		; a0 = pointer to variable begin
+	addq.l	#6,a0			; a0 = pointer to signature
+	cmpi.l	#'68kP',(a0)		; check Kernel Program signature
+	bne	\NoPrgm
+	sf	d4			; signature ok: d4 = 0 -> add to list
+	rts
+\NoPrgm	st	d4			; no Kernel Program: d4 = -1 -> do not
+	rts				;   add this program to the list
+
+
+_main:	lea	Title(PC),a4		; a4 points to title of browser window
+	lea	FargoFilter(PC),a0      ; a0 points to filter callback routine
+	suba.l	a1,a1			; a1 = 0 (no info callback routine)
+	suba.l	a5,a5			; a5 = 0 (no enter-pressed callback r.)
+
+	jsr	brwselib::Browse	; returns: d0.w = handle of chosen file
+
+	tst.w	d0			; if d0.w = 0: browser was quit by ESC
+	beq	\BrowserQuit
+
+	jsr	kernel::exec		; execute the chosen program:
+
+\BrowserQuit:
+	rts
+
+_comment:	dc.b "...",0
+Title:		dc.b "My Program Launcher",0
+	END
+
+-----------------------------------------------------------------------------
+
+Another problem of the browser is, that it allows the user to only exec
+one file at one time. So we should put the execution thing into a callback
+routine, the enter-pressed callback routine, that is called when a file is
+chosen:
+
+-----------------------------------------------------------------------------
+
+	INCLUDE "tios.h"
+	INCLUDE "brwselib.h"
+
+	XDEF	_main
+	XDEF	_comment
+	XDEF	_ti89
+	XDEF	_ti92plus
+
+;----------------------------------------------
+; Callback routine, that checks, whether a file is a Fargo program
+; Input:
+;   d0.w = handle of file
+; Output:
+;   d4.w = Don't add this file to the list?
+FargoFilter:
+	tios::DEREF	d0,a0
+	addq.l	#6,a0			; a0 = pointer to signature
+	cmpi.l	#'68kP',(a0)		; check Kernel Program signature
+	bne	\NoPrgm
+	sf	d4			; signature ok: d4 = 0 -> add to list
+	rts
+\NoPrgm	st	d4			; no Kernel Program: d4 = -1 -> do not
+	rts				;   add this program to the list
+
+;----------------------------------------------
+; Callback routine, that executes the chosen file.
+; Input:
+;   d0.w = handle of file
+; Output:
+;   d4.b = Abort browser?
+Execute:
+	jsr	kernel::exec		; execute the program
+	sf	d4			; do not abort the browser
+	rts
+
+_main:	lea	Title(PC),a4		; a4 points to title of browser window
+	lea	FargoFilter(PC),a0      ; a0 points to filter callback routine
+	suba.l	a1,a1			; a1 = 0 (no info callback routine)
+	lea	Execute(PC),a5		; a5 points to enter-pressed callback r.
+
+	jsr	brwselib::Browse	; browses, until ESC is pressed
+	rts
+
+_comment:	dc.b "...",0
+Title:		dc.b "My Program Launcher",0
+	END
+
+-----------------------------------------------------------------------------
+
+Now you perhaps want to know a program's comment. This can easily be done
+by the info callback routine:
+
+-----------------------------------------------------------------------------
+
+	INCLUDE "tios.h"
+	INCLUDE "brwselib.h"
+
+	XDEF	_main
+	XDEF	_comment
+	XDEF	_ti89
+	XDEF	_ti92plus
+
+;----------------------------------------------
+; Callback routine, that checks, whether a file is a Fargo program
+; Input:
+;   d0.w = handle of file
+; Output:
+;   d4.w = Don't add this file to the list?
+FargoFilter:
+	tios::DEREF	d0,a0
+	addq.l	#6,a0			; a0 = pointer to signature
+	cmpi.l	#'68kP',(a0)		; check Kernel Program signature
+	bne	\NoPrgm
+	sf	d4			; signature ok: d4 = 0 -> add to list
+	rts
+\NoPrgm	st	d4			; no Kernel Program: d4 = -1 -> do not
+	rts				;   add this program to the list
+
+;----------------------------------------------
+; Callback routine, that displays the comment of a chosen program
+; within the Info-Window of the Browser, by the brwselib::InfoString
+; routine.
+; Input:
+;   d0.w = handle of file
+DisplayComment:
+	jsr	brwselib::ClearInfo	; clear the info window
+
+	tios::DEREF	d0,a0
+	addq.l	#2,a0			; Skip File Size
+	move.w	$A(a0),d0		; d0 = relative pointer to comment
+	beq	\NoComment		; if it is zero: there is no comment!
+	adda.w	d0,a0			; a0 = a0+d0 = absolute pointer to comment
+
+	moveq	#2,d0			; X-coordinate of string (win-relative)
+	moveq	#2,d1			; Y-coordinate of string (win-relative)
+	moveq	#4,d2			; color (black on white)
+	jsr	brwselib::InfoString	; display the string, pointed by a0
+\NoComment:
+	rts
+
+;----------------------------------------------
+; Callback routine, that executes the chosen file.
+; Input:
+;   d0.w = handle of file
+; Output:
+;   d4.b = Abort browser?
+Execute:
+	jsr	kernel::exec
+	sf	d4			; do not abort the browser
+	rts
+
+_main:	lea	Title(PC),a4		; a4 points to title of browser window
+	lea	FargoFilter(PC),a0      ; a0 points to filter callback routine
+	lea	DisplayComment(PC),a1	; a1 points to info callback routine
+	lea	Execute(PC),a5		; a5 points to enter-pressed callback r.
+
+	jsr	brwselib::Browse	; browses, until ESC is pressed
+
+	rts
+
+_comment:	dc.b "...",0
+Title:		dc.b "My Program Launcher",0
+	END
+
+-----------------------------------------------------------------------------
+
+So that's all you need to know. If you like, you could add displaying
+execution errors, by the brwselib::MessageBox routine and much more... Btw.
+there is a very, very smart Fargo Program Launcher, using BrwseLib, that has
+a lot of features that FBrowser (the default shell) doesn't have. If you're
+interested - (e)mail me. It could take some time until I can release it at
+http://www.ticalc.org, so I will send it to anyone who's interested in it.
+(NDPpHd: It is FPL and FPL2 by the same author ;))
+
+==============================================================================
+	

@@ -1,0 +1,15 @@
+;************************************************************************
+;*           Example data, for PACKER92's program data Archives		*
+;*----------------------------------------------------------------------*
+;*                       by David KÅhling 1997/98			*
+;************************************************************************
+
+String1:	dc.b "       This is a string", 0
+String2:	dc.b "    This is another string", 0
+String3:        dc.b "  --------------------------", 0
+String4:	dc.b "Formatstring for sprintf:", 0
+String5:	dc.b "sprintf(buf,str,num1,num2):", 0
+FormStr:	dc.b " Num1 = %i, Num2 = %li ", 0
+Num1:		dc.w 1234
+Num2:		dc.l 12345678
+Buffer:		ds.b 40		;for the Output of sprintf

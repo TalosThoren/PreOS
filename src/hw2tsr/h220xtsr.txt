@@ -1,0 +1,322 @@
+TI-89/92+/V200 Hardware 2.00 AMS 2.0x TSR support v.1.12
+********************************************************
+Copyright (C) Kevin Kofler, 2001-2004
+Thanks to Zeljko Juric for all the help he has given to me (see the credits
+section VI)!
+
+I) Purpose
+
+1) What's it?
+This is a program which allows memory resident (TSR) programs to run stable
+on HW2 calculators with AMS 2.xx and without HW2Patch. It installs itself
+in RAM (it is a TSR itself) and will NOT modify the AMS.
+On any other configurations, it will simply refuse installation. (The user
+version will show an error message when this happens.)
+Note that the TSRs need to be HW2 compatible. (Technically: They still have
+to add $40000 to the address of the event or interrupt hook.)
+This program is included in the current versions of all my TSR programs
+(dated 2001/01/09 or later). Versions dated 2004/07/02 or later will
+include v.1.12. By the time you download this, they will probably already
+be out, at least at:
+http://members.chello.at/gerhard.kofler/kevin/ti89prog/
+Header file versions for A68k and TIGCC are available (look at section
+I.3).
+
+2) For users:
+The user version is located in the "user" folder of the ZIP file.
+
+a) Installation
+To install this program, simply type h220xtsr() from the home screen and
+press [ENTER]. V.1.12 is also able to upgrade from prior versions (but
+it still won't downgrade newer versions).
+Note that this will be included in future TSR programs and if it says so
+you will not need it (check the version though).
+To update from v.1.01 or older, I strongly recommend you to reset the
+calculator and to install the new version afterwards, because those
+versions contained a bug which may cause random crashes. V.1.11a will do
+the upgrade, but note that this is NOT recommended because of the nasty
+bug in the previous versions.
+If you were using v.1.02 or newer, it is safe to upgrade.
+IMPORTANT: In order to fix the bug when changing the batteries, I had to
+           do some internal changes (technically: to hook the trap #4).
+           You will have to uninstall any TSRs which install themselves
+           on the "trap #4" before installing or upgrading h220xTSR.
+           This includes most memory resident keyboard auto-repeat
+           accelerators (like Fast Keyboard and FastKeys), password
+           programs or clocks. Otherwise, h220xTSR will fail with a
+           "trap 4 already hooked" error. You can of course reinstall
+           the other TSRs afterwards.
+
+b) Uninstallation
+To uninstall this program, simply type unin2tsr() from the home screen and
+press [ENTER]. Note that this will only work if all other TSRs are
+uninstalled before, for security (crash prevention) reasons.
+You will have to use the version of unin2tsr given with v.1.03-1.11b
+because I had to change the internal architecture in order to fix the bug
+when changing the batteries.
+WARNING: Due to a lack of attention, some versions of v.1.03 or v.1.04
+(those built-in in AutoClBr, Auto Alpha-Lock Off and XtraKeys) will allow
+old uninstallers to attempt to uninstall them. This will result in a
+crash! Therefore, I recommend you to ONLY use the MOST RECENT uninstaller
+to uninstall h220xTSR.
+
+3) For developers:
+a) A68k assembly version
+It is located at "developr\asm\h220xtsr.h" and requires the h220xTSR
+static library located at "developr\h220xtsr.a".
+WARNING: You need TIGCC 0.95 minimum to use h220xTSR 1.12!
+Just include the header file at the beginning of your program (assuming
+_nostub mode) just before the first instruction of your program and then
+continue your program as normally. You will also have to link to the
+static library h220xtsr.a, either by adding it to your TIGCC IDE project,
+or by compiling your program using: "tigcc yourprog.asm h220xtsr.a".
+Right after the header file, d0.l will contain the value returned by
+the h220xTSR function - see section c. Also, note that for backwards
+compatibility reasons, the assembly version will automatically exit on
+a return value of 0 (installation failed).
+Do not use jmp or jsr instructions to labels in your program. Use bra or
+bsr instead!
+
+b) TI-GCC C version
+It is located at "developr\c\h220xtsr.h" and requires the h220xTSR static
+static library located at "developr\h220xtsr.a".
+WARNING: You need TIGCC 0.95 minimum to use h220xTSR 1.12!
+To use it, use #include "h220xtsr.h" and call the function h220xTSR();. You
+will also have to link to the static library h220xtsr.a, either by adding
+it to your TIGCC IDE project, or by compiling your program using:
+"tigcc yourprog.c h220xtsr.a".
+The h220xTSR() function returns a value which you might want to read in
+your program - see section c.
+Use it only in your main function and, if you do not use it at the end, you
+will have to relocate your program to the ghost space if it was not already
+there.
+For an event hook installer, I recommend the following sequence:
+void _main(void)
+{
+...
+if (!h220xTSR()) {ST_helpMsg("h220xTSR installation failed");return;};
+*EV_hook=...;
+ST_helpMsg("Success message");
+}
+
+c) Returned values
+FATAL ERRORS:
+0=h220xTSR_FAILED: installation failed (not enough memory, trap 4 already hooked
+                   or unpatched HW3)
+                   A dialog box showing the error will be automatically displayed.
+
+SUCCESS CODES:
+1=h220xTSR_SUCCESS: successfully installed
+2=h220xTSR_SUCCESS_UPDATE: successfully updated
+
+NON-FATAL, INFORMATIONAL ERROR CODES:
+-1=h220xTSR_HW1: HW1 detected, h220xTSR is not needed on HW1
+-2=h220xTSR_AMS1: AMS 1 detected, h220xTSR is not needed on AMS 1
+-3=h220xTSR_PATCHED: HW2/3Patch detected, h220xTSR is not needed on patched HW2
+-4=h220xTSR_ALREADY: h220xTSR is already installed
+-5=h220xTSR_PATCHED_HW3: HW3 with HW3Patch detected, h220xTSR not needed
+
+d) Distribution
+See the section V, especially V.ii, for details about how to distribute this
+TSR support program together with your programs.
+
+II) History
+
+Current version:
+v.1.12: Fixed a bug in the hardware version detection which made HW3 detection
+        still NOT work properly in v.1.11a. (Sorry.) I believe this is the cause
+        of the AutoClBr 2.11a crashes on the Titanium reported by John Paul and
+        DeveloperZero, so thanks to them for their reports.
+
+Previous versions:
+v.1.11a: Now detects HW3 properly. The command-line (user) version always returns
+         with an error message on HW3 (this was always the case, but the text of
+         the error message has been fixed). The developer version now checks if
+         the HW3Patch is installed, and returns h220xTSR_PATCHED_HW3 if it is,
+         and displays an error dialog and returns h220xTSR_FAILED otherwise.
+v.1.11: * Once again fixed the calling convention for the trap #4. d7 was
+          getting destroyed by the trap #11, and not saved/restored
+          anywhere. (Sorry, I didn't know that the trap #11 destroys
+          registers other than d0-d2/a0-a1.)
+v.1.10: Added support for AMS 2.07 (Voyage 200) and 2.08.
+v.1.05a: Replaced the old implementation of enter_ghost_space by a new one,
+         fixed by me, which eliminates the possibility of a crash during
+         installation, when the program was located at a very precise
+         position in memory. That possibility was very rare, but it is now
+         completely inexistent. Note that you need NOT upgrade if you are
+         using v.1.05, since this problem could only happen during
+         installation. There were NO changes in the memory resident part.
+v.1.05: * Fixed a bug in the assembly header files: the signature was
+          incorrect (I had forgotten to change the old signature from
+          v.1.02). As a result, the upgrade from v.1.03 to 1.04 could fail.
+          Uninstallation with unin2tsr was NOT affected. V.1.05 is able to
+          to upgrade versions with an incorrect signature correctly using a
+          workaround, so just upgrade h220xTSR the usual way if you were
+          using the affected versions. Also, note that this problem only
+          affected UPDATING h220xTSR, it did NOT cause any problems during
+          use. This affects users on HW2 AMS 2 WITHOUT the HW2Patch and
+          WITHOUT having manually installed h220xTSR before of: AutoClBr
+          2.11-2.12, Auto Alpha-Lock Off 1.06-1.07 or XtraKeys 2.21-2.23.
+          The standalone h220xtsr(), as well as C programs using h220xTSR
+          are NOT affected.
+        * Added a workaround to upgrade versions of v.1.03/1.04 with a
+          broken signature (see above).
+        * The assembly header file now uses a static library instead of an
+          inline source, in order to make sure that the result will be
+          identical byte-for-byte no matter what version of A68k was used
+          for compiling, and in order to decrease maintainance work. This
+          also renders the binary include file obsolete, so it was
+          discontinued. Note that THIS REQUIRES TIGCC 0.93 MINIMUM and that
+          you should reread section 3 of this readme thouroughly.
+v.1.04: * Fixed the calling convention for the trap #4. (No longer destroys
+          d0-d2/a0-a1. There were no reported bugs because of this, but it
+          is cleaner now anyway.)
+        * The trap #4 now consumes only 20 bytes on the user stack. The
+          remaining bytes are taken from the supervisor stack, which is
+          usually close to empty.
+        * The C version now uses a static library (h220xtsr.a) instead of a
+          hex array.
+        * The C version now works with the exit support, as well as with the
+          SAVE_SCREEN, RETURN_VALUE and OPTIMIZE_ROM_CALLS directives, but
+          requires TIGCC 0.93 minimum. Conversely, only use h220xTSR 1.04
+          with TIGCC 0.93.
+v.1.03: * Bugfix: The calculator no longer crashes when changing the
+                  batteries with the HW2 AMS 2 TSR support installed.
+          Thanks to Loth Lay for reporting this bug.
+          Make sure your calculator is _OFF_ when changing the batteries
+          though to avoid data loss and/or crashes!
+          I also had to change the internal architecture to fix this bug, so
+          you will need the uninstaller given with this version in order to
+          uninstall it.
+        * This version is able to update from all previous versions.
+v.1.02a: Fixed a serious bug in the C header file for developers and in the
+         binary version of the assembly header file for developers, which
+         caused crashes which could be fixed only by a reset.
+         This bug affects all versions of SampleTSR and ASH by Greg Dietsche
+         released BEFORE 2001/05/19. I am not aware of any other programs
+         using the buggy header files.
+         The standalone version for users and the source version of the
+         assembly header file, which I use in AutoClBr, Auto Alpha-Lock Off
+         and XtraKeys, are NOT affected by this bug.
+         I repeat: h220xtsr.89z, h220xtsr.9xz, AutoClBr, Auto Alpha-Lock Off
+         and XtraKeys ARE _NOT_ AFFECTED BY THIS BUG!
+         Also, this bug only affects HW2 calculators with AMS 2 which did NOT
+         have the HW2Patch or a working version of the HW2 AMS 2 TSR support
+         (see the 2 paragraphs above) installed BEFORE SampleTSR or ASH.
+         HW1 calculators or HW2 with AMS 1.05 ARE _NOT_ AFFECTED BY THIS BUG!
+         Thanks to Greg Dietsche for reporting this bug and sorry for having
+         rendered his programs buggy.
+v.1.02: * Fixes a nasty bug which could cause random crashes or corrupt the
+          mathematical functions of the calculator! If you have used any
+          previous version of h220xTSR, I recommend to reset your calculator.
+          I am really sorry for that.
+        * Adds support for possible different implementations of
+          enter_ghost_space.
+v.1.01: Now really refuses to install on patched HW2. There is no need to
+        reinstall it if you already have v.1.00.
+v.1.00: This version was the first "official" public release.
+        Just minor changes in the user version.
+        An uninstaller and header files for developers added.
+v.0.14 alpha: Added support for the Exec command.
+v.0.13 alpha: This version was the first public release.
+
+III) How this program works
+
+It makes sure that the so called "ghost space", which consists of RAM
+addresses after the actual RAM and which maps to the actual RAM, is never
+execution-protected by the hardware. It launches all programs from the "ghost
+space".
+
+IV) Bugs
+
+If you change your batteries while the calculator is ON, the HW2 AMS 2 TSR
+support will still crash. Sorrily, I cannot do anything about this, since I
+have no way to predict when one changes the batteries.
+WORKAROUND: Just make sure the calculator is OFF before you take your
+            batteries out. (Note that this is recommended by Texas
+            Instruments in their manuals as a precaution to take anyway.)
+
+If you have to report a bug to me, see section VII. PLEASE report any bugs
+you find, or else I cannot correct them.
+
+V) License
+
+In addition to the following license:
+
+(i)
+-----------------------------------------------------------------------------
+
+Kevin Kofler's TI-89 Program License
+====================================
+
+This license applies to all TI-89 programs by Kevin Kofler, unless otherwise
+stated. Note that CHEMISLV is NOT an exception since the following is a
+generalized copy of the CHEMISLV-License (readme point 8).
+
+a.I CAN'T BE HELD RESPONSIBLE FOR ANYTHING! NO WARRANTY!
+b.YOU CAN'T SELL MY PROGRAM OR CLAIM IT IS YOURS!
+c.IF YOU TRANSMIT ONLY PARTS OF THIS PROGRAM, YOU MUST SAY THAT IT'S A PART
+  OF THE (package name) PACKAGE AND ONLY A PART!
+d.NORMAL RIGHT APPLIES TO THE THINGS I'VE FORGOTTEN!
+
+-----------------------------------------------------------------------------
+
+(ii) I am granting you permission to freely redistribute the header files, the
+     h220xTSR static library and any program compiled with them as long as:
+
+* The used header file, the static library (h220xtsr.a) with its sources
+  (h220xtsr.asm and h220xtsr.tpr in the developr folder) and this file (You
+  should rename it to "h220xtsr.txt".) are included.
+* Those files are LEFT UNMODIFIED. You need my permission to compile your
+  program with a modified version of my header file and/or my static library,
+  or to copy and paste my code into your program.
+* Applicable credit is given in the credits section of the program's
+  documentation.
+* Your program's documentation states: "This program uses and includes the
+  TI-89/92+/V200 Hardware 2.00 AMS 2.0x TSR support v.1.12 by Kevin Kofler in
+  its installation routine. See h220xtsr.txt for details about it."
+* It is NOT distributed together with or used for ILLEGAL programs.
+
+(iii) The h220xTSR static library and headers may also be used under the terms
+      of the GNU General Public License. (Note that this is NOT the GNU
+      Library/Lesser General Public License, so this means your client program
+      MUST be GPL if you use this option! For non-GPL programs, you can use the
+      other licensing options instead.)
+
+Ask me for permission if you are not sure about one of these license
+requirements.
+Please DO NOT distribute modified versions of this program or the
+corresponding header files without my permission.
+
+VI) Credits
+
+Thanks to:
+* The TIGCC Team (http://tigcc.ticalc.org) for TIGCC. Especially:
+  - Zeljko Juric for documenting some important operating system functions,
+    for the enter_ghost_space function and for the information about the HW2
+    protection required to write this program
+  - Sebastian Reichelt for the TI-GCC IDE (integrated developer environment),
+    which was used for this program and for his work on static library
+    support
+* Rusty Wagner for the Virtual TI emulator
+* Julien Muchembled for the hardware version detection routine
+* Brian Anderson, Charlie Gibbs and David Ellsworth for the A68K assembler
+* Paul Froissart and Julien Muchembled for helping me maintain the current
+  versions of the A68k assembler
+* Thomas Nussbaumer and the TI-Chess Team (http://tict.ticalc.org) for the
+  TIGCC Tools Suite which I had used to create the developer versions before
+  switching to static libraries
+* jimhaskell, Kaizer911 and mpjohans for testing version 0.14 alpha
+* Jaime McGauley for reporting a nasty bug in v.1.01 and lower
+* Greg Dietsche for reporting a serious bug in the C header file and the
+  binary version of the assembly header file of v.1.02 or lower
+* Loth Lay for reporting the bug when changing batteries and for his help
+  with testing the pre-release versions of v.1.03
+* fosco for reporting that AMS 2.07 broke h220xTSR up to v.1.05a, for
+  helping me fix it and for testing the fix
+
+VII) Contact me
+
+Homepage: http://kevinkofler.cjb.net or
+          http://members.chello.at/gerhard.kofler/kevin/
+E-Mail: kevin.kofler@chello.at or Kevin@tigcc.ticalc.org

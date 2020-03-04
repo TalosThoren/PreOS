@@ -1,0 +1,329 @@
+       Title: PreOs History
+     Version: See last entry.
+ Platform(s): TI-89, TI-92+, V200
+      Author: PpHd (and some routines by Kevin Kofler)
+    Web Site: http://www.yaronet.com/t3
+      E-Mail: patrick.pelissier@gmail.com
+Release Date: See PreOs.txt
+
+v0.52:	* First Public Release
+
+v0.53:	* Fix bugs in ZipLib (It was a too old version).
+	* Fix bug in ProgFormat.txt (_exit)
+	* Improve docs about font in RamCalls.txt
+	* Fix some errors about LibsBegin in RamCalls.txt
+	* Improve userlib::exec to use version 1 of ziplib.
+	* Fix bugs in userlib::getfreearchive and improve it.
+	* Fix a bug about ROM_CALL in RamCalls.txt
+	* If you hit 'ESC' during the lib version detection, you will skip the detection.
+	* Get rid of SHIFT indicator as soon as possible (with SHIFT+ON).
+	* During the call of SHIFT+ON, some info of the supervisor stack will be saved too.
+	* Move the reset of the vector ER_throw from 'kernel_install_int' to 'reinstall_tios_var'
+	* Warning: I suppose than EX_patch doesn't modify the stack argument.
+	* Warning: I suppose than HLock doesn't modify the stack argument.
+	* Now you can call tictex with SHIFT+ON
+	* Update uninstall program : messages + the vector table isn't completly clear : the traps aren't reseted (and only them !) So Hw2Tsr shouldn't be uninstalled.
+	* Fix an incredible bug in the Uninstall program (Address Error).
+	* Preos + Uninst won't run if their aren't called from the Ti-Home. (From TicTex, for example). But if it simulated a call from the ROM, the detection won't work.
+	* HotReset now calls OSLinkReset
+	* Rewritten the reset of the windows list : it now works on AMS 2.03, and it should be more stable.
+	* HotReset resets the SHIFT+ON indicator	
+
+v0.54:	* dont crush the auto-int 6 when a nostub crash occurs
+	* when it redraws the screen, the border of the window aren't draw anymore.
+	
+v0.55:	* reinstall tsr with use 'ev_hook' after a hot_reset
+	* org_stack now uses only 2 bytes
+	* Improve the kernel protection
+		* only save d3-d7/a2-a6 (=> tests ret_val : done )
+		* only save a5 during the call of the program
+		* in clean_up, only saves register a4 and calls 'install_int' after calling exit function.
+		* 'exit_function' is now called in supervisor mode
+		* preos has now its own 'trap #12' for stability reasons (100% compatible with tios 'ones)
+		* kernel crash works now in supervisor mode
+		* save and restore all the vector table in kernel mode (and ev_hook).
+		* ER_throw now really works fine (I hope) (Doesn't use of ER_catch, but save the ER_throw list ref)
+	* now the copy of the auto-ints and ev_hook (for nostub programs) are saved in the vector $E0 - $FF
+	* add 'kernel_vectors' file.
+	* forget of exporting version number in genalib.h and util.h
+	* Clean-up of the not-completly relocated libraries if a relocation failed (So that in a shell, it won't use useless memory). Doorsos and teos don't do it. I don't know for Unios.
+	* No more crash when you call a kernel program inside a ti-basic program which doesn't init its local variable (For info, it was because theses variables don't have any handle, so when it derefs it, it crashs). But these bug may be found in other programs.
+	* Vti is always detected as an hw1 :(
+	* Completly change the way of detecting the calc and the hardware : it should be V200 compatible now. Even the couple Vti+V200 doesn't work.
+	
+v0.56:	* Fix bug of return value
+	* Little change in Line1111 emulator By Francesco (-4bytes)
+	* After a Hot-reset, it displays now "Crash intercepted"
+	* Fix bug on ti-92+ ams 1.00 : OSqclear doesn't exist. I cannot call it after a hot reset :(
+	* Completly rewritten Line1111 emulator : - 20 bytes
+	* Bss section is now also in the ghost space if some program needs to write code in bss section...
+	* If a Hot-reset occurs, resets Supervisor stack
+	* Add a5 / a6 as global registers during the install part (-100 bytes).
+	* Add Line1111 Special Value $FFF0 & $FFF2
+	* Completly rewrite the restoration after a hot reset (By Kevin Kofler)
+	* Add / Change EQU to compile preos :
+		+ Hw2tsr
+		+ ShiftOn (No Shell, Doors or TicTex)
+		+ RestoreTSR (Restore the TSR after a hot-reset ?)
+		+ NoWindow (Display windows during the installation part)
+	* Fix a bug in userlib::lockcalc if there is no password
+
+v0.57:	* Add LCD_MEM / font_small / font_large and SYM_ENTRY structure as _RAM_CALL to preserve compatibility (with older and newer hardware)
+	* As a consequence : move.w #LCD_MEM/8,$600010 does not work anymore.
+	* Add HW_DISPLAY_VERSION / EMULATOR as RAM_CALL (See RamCalls.txt)
+	* Add Compiled Flag CheckCalc to test if the program is designed to run on the current calculator.
+	* Reserved Flags 4 & 5 to test if program is designed to run on ti-92 and on v200 .
+	* Fix bug in LibBegin/LibsEnd/LibsCall/LibsExec (Forget load Data ptr).
+	* graphlib functions allow non-even screen ptr (FlashZ games use this feature a lot, even it is a non-sens to have an odd screen ptr).
+	* ziplib now needs only filelib.
+	* Fix bugs in large_font and small_font.
+
+v0.58:	* Add Pack / Archive
+		kernel::ExtractFile
+		kernel::ExtractFileFromPack
+		Auto-extractible program ($50 vector) using kpack !
+		Libraries can now be compressed and packed in one file !
+	* Rewrite and fix bugs in ziplib.
+	* Add zpack / zunpack programs.
+	* Add stdlib
+	* Add function 12 to ziplib, and function 3 to shrnklib.
+	* Fix bug in kernel::exec in case we call a nostub program which returns a value.
+	* Fix bug in kernel::LibsPtr (bhi instead of bge).
+	* HotReset now only losts 192 bytes instead of 7000 bytes.
+	* HotReset in program editor doesn't lose edited program anymore.
+	* kernel programs compiled with (xdef _install_preos) will install preos if there is no kernel before running.
+	* Improve Hotreset by checking if the current step has already crashed.
+	* Restore the original AMS auto-ints in case the saved auto-ints are corrupted.
+
+v0.59:	* Ported brwselib / ugplib to Ti-92+/Ti-89
+	* Created a new program : Preos Browser
+	* Ported JpLib / Fargray to Ti-92+/Ti-89 HW1&2
+	* Uses H220xTsr v1.10 with AMS 2.07 supports.
+	* Kernel Shift+ON calls now the program 'shell' instead of 'doors'.
+	* Create stdlib (based on shrnklib)
+	* Fix a bug when you want to use a compressed library and there is another file with the same name (But not a kernel library).
+	
+v0.60:	* 'Extracting' message is erased.
+	* 'Reloc' vector functions return now right value in a0 in case of an error.
+	* Fix some bugs about EXTRA_RAM_CALL in 'Ramcalls.txt'(Thanks to Pen^2).
+	* Improve the detection of Vti (Now V200 rom + Vti works).
+	* Fix a bug on V200 (Shift+On didn't work).
+	* Fix bug of macro SetFont
+	* Optimize codes (- 10 bytes).
+	* Optimize Handle Protection in speed (53911 / 40985 instead of 56041 / 61538) and in size (- 4 bytes).
+	By the Way, here are the cycles of a standard program :
+		+ Init : 55455
+		+ Reloc: 473 (No reloc in program / No library / No Archived / No compression)
+		+ Unreloc: 4876
+		+ Quit : 804164 (Redraw) or 48973 (No Redraw)
+	* Fix Crash Bug when you change your batteries on HW2 if there is no Hw2Tsr (By JM).
+	* Update uninstall program.
+	* Fix Illegal Program Reference on AMS 2.08
+	* Fix Extram Ram bug on V200
+	* Fix a bug in Check Calc on V200 (Bit 4 was used instead of bit 5).
+	* 92+ emulation on V200 : if the program is not designed to run on V200, Preos will tell to the program that it is a 92+, instead of a V200. Of course, if the program is designed to work on V200 (Bit 5 set), then Preos tells to it that it is a V200 ! It allows some programs (Txtrider for example) to run fine on V200.
+
+v0.61:	* Fix graphlib::horiz bug in case of an odd address (The line was too small, and it may crash if you called with abs(x2-x1)<8 and an odd address. Thanks to Squale92 for reporting me this bug.
+	* Fix hw2tsr version so that it applies hw2patch even in this version (For compatibility reason). Thanks to Kevin Kofler for this advice.
+	* Fix hw2tsr + crash, Home Screen restore bug (If you installed the hw2tsr version and have a crash inside kernel program, the Home Screen won't be restored like it should be).
+	* Fix SHIFT+ON and args program bug (Preos pushes END_tag before calling the program).
+	* Display "Folder Name" instead of "Preos version" if Preos detects a wrong lib.
+	* If there are several libraries with the same name in the calculator, Preos will detect it and inform you (You should erase old versions since they may introduce various problems). It doesn't support Pack Archive yet.
+	* Reinstall kernel vectors in case of a nostub crash (To avoid crashing when you call Kernel prgms if the kernel vectors are corrupted).
+	* Genlib now allows ESC+ON to interrupt the program.
+	* Optimize in size Relocation Error (-34 bytes).
+	* Fix a bug on HW1 (On HW1, HW_VERSION was equal to 0 :() Thanks to Squale92 for reporting this.
+
+v0.62:	* Fix a bug in tictex version if tictEx isn't here (Thanks to Kevin for reporting this).	
+	* Home History handles aren't freed anymore when you quit your program (if program uses HomeStore or anything like that). Thanks to Samuel Stearley for the code.
+	* Uses Hw2Tsr v1.11
+
+v0.63:	* Support for AMS 32-bits jump in FLine Emulator.
+	* Running an archived program which is larger than the amount of free RAM caused the calculator to crash with previous version of Preos... (A non-intercepted crash !)
+	It seems it is nearly a bug in AMS, since AMS generates an 'Illegal Program Reference' error instead of an 'Memory' error in this case - AMS doesn't check if EM_twinSymFromExtMem succeed directly, but it checks if the var is already locked ! -. So it crashed because Preos (and all other TSR which prevent from 'Illegal Program Reference') skips this error. And so, it executes directly archived program, which is prohibited by Hardware Protection.
+	To solve this problem, I have done a dirty hack which may not work on non supported ROMS (included AMS 2.06 and 2.09) to detect if the current asm program is archived.
+	* Some files are now commun between Preos and Pedrom (ext.asm / reloc.asm)
+	* Fix a dirty bug in kernel::Ptr2Hd (It forgot to check if the ptr was != 0)
+	* Fix a dirty bug in kernel::Ptr2Hd (It forgot to check if the ptr was archived...)
+	* Userlib now works on AMS 1.00. If you call function 'runprog' on AMS 1.00, it just does nothing.
+	* Now kernel::Ptr2Hd works well even with Archived Files !
+	* BSS Blocks are now fill with 0 at the beginning.
+	
+v0.64:	* Support of Static files in Pack Archive. Exemple : you have 'smacode' (the code which needs to be executed in RAM) and 'smadata' (the data which should in archive memory). With previous version os Preos, you were able to declare 'smadata' as ReadOnly so that this library wouldn't be unarchived (To gain RAM memory). Now, you can add in one Pack Archive both code and data ! 'smacode' will be added in the pack and compressed, 'smadata' will be added too and uncompressed. When you run your Pack Archive, it (uncompress &) runs 'sma'. But 'smadata' will remain in the archive memory ! You have only ONE file ('sma', the pack archive) which starts itself, with BOTH code (compressed), data & BSS section separated, and without any overcost of RAM (Strictly speaking you have an overcost of 18 bytes. So ~0 ;).
+	* Another consequence of this support is that you don't need anymore 'shrnklib' as a separate file : only 'preos' & 'stdlib'. 'shrnklib' is in the Pack Archive, uncompressed.
+	<The last consequence is that the code of Preos becomes ... too complicated for me !>
+	* Fix a crash bug in the Hw2Tsr version with ReadOnly libs.
+	* Add Queue structure / Window Struct in 'tios.h'.
+	* Add a new RAM_CALL : kernel::ExtractFileFromPack.
+	* Fix a crash bug : some files may have be deleted when you use compressed/or/archived libraries due to some side effects of SymDelTwin I ignored. I use now HSymDel.
+	* Add 'comment' and 'icon' in Pack Archive files.
+	* Reduces the EStack as small as possible during the call of a Kernel Program. As a consequence, if often augment the available mem of ~16K. Very usefull to run huge programs.
+	* Comment file 'reloc.asm' in English (If you need more comment, tells me).
+	* kernel::idle works in supervisor mode.
+	* In case of a Kernel/Nostub crash (or Kernel normal end), Preos will reset the Hardware Protection. You may think it is useless. No, a crash may easilly unprotect the hardware protection !
+	* Set file In-Use for all used files.
+	* Fix bug in kernel::idle
+	* Kernel saved vectors are now read from Real space rather than ghost space (- 2 bytes).
+	* Comment file 'exec.asm' in English (If you need more comment, tells me).
+	* Fix the Hardware Protection restore bug (In fact, it is more a trap #b bug...).
+	* Removes the reduction of the EStack because it can crash the calc under some special circunstances.
+
+v0.65:	* No more "Invalid in a function or current expression". So you can use all the instructions in a Ti-Basic function and you can even set global vars.  
+	<check if it is safe>.
+	* Fix a bug in the reloc function. It happens when it fails to reloc a program with used some compressed libraries. It was because it used global variables (Stack Ptr, Program Reference) in a massive recursive function. In fact, with compressed libraries, you are able to call kernel::relocation inside kernel::relocation. That's was the problem. I now use a linked list.
+	* Rename internal variables OrgStack / ProgramRef to RelocStackList & ErrorString.
+	* Fix a bug in util.h 'util::show_dialog' was incorrect.
+	* Update 'ProgFormat.txt'
+	* Library version checking is done in 'IsKernelVersionPrgm' to be more logical. Update all other code to be compatible (Ints.asm: Clears d0.b before Calling 'shell' Ext.asm: Fixs kernel::LibsExec and kernel::LibsBegin).
+	*	=> 1.You can have several libraries with the same name in the VAT, PreOS will search for the first good one. (Doesn't work with Pack Archive, yet).
+	*	=> 2.Fix a 'critical' bug in kernel::LibsExec : forget to check the version number !
+	* No recurse relocation is now $8000+x instead of 256+x (- 2 bytes).
+	* Add cK1toK2 program which converts a Kernel version 1 program to a Kernel version 2.
+	* Add Internal Kernel Format Flag in the Kernel Format. (To check if the kernel is able to run the program).
+	* Direct access of ROMCALL Table : It doesn't use $C8 vector anymore. It is safier since this vector may be corrupted.
+
+v0.66:	* Fix a bug chich appears in smq (Frame Box missing on HW2). In fact, the bug was in smq, but I have modified graphlib so that in GrayMod, it will use plane instead of LCD_MEM if choose_graph=0.
+	* Rewrite a few reloc.asm & ext.asm to allow creating a Flash Application using this files.
+	* Rewrite kernel::LibsCall (-14 Bytes and much better).
+	* Rewrite kernel::LibsExec to fix some bugs. Now it is a reentrant function ! It fixs 2 other bugs too. (Same code for PedroM & PreOS). But it is bigger (69 words instead of 58 words).
+
+v0.67:	* Fix a bug with uninstall (Uninstall Preos can't be done using unist.asm)
+	* Fix a latent bug in kernel::LibsExec: Forget that kernel::relocation may destroy a3 in case of an error.
+	* Fix a latent bug in find_lib!: HeapAllocHigh may compress the Heap and move the SYM_ENTRY... Incredible bug, yes. I hope I haven't add new one.
+
+v0.68:	* Improve kernel::Ptr2Hd
+	* Remove kernel::PrepareHeapPtr
+	* Improve Ramcalls reloc (- 12 bytes).
+	* Fix int6 Keyboard mask problem.
+	* Completly rewrite the library system: it doesn't modify the VAT, but use its own table of the current relocated libraries.
+	It is much safier since it doesn't modify the VAT with strange flags, or strange COMPAT field. It is also faster and smaller. (To debug!)
+	* Add support of EvHk
+	* Remove BasicFunc extensions due to some bugs.
+	* Fix bug in shrnklib.
+	
+v0.69:	* Fix bug of AMS 1.0x (Er_throw uses a5 instead of a3).
+
+v0.70:	* Rewrite 70% of the kernel.
+		- A new way to do the relocation. Should be more sure (Completly rewrite the Shared Linker part).
+		- Intercept always the idle trap.
+		- All vectors are read / written from the vector area (Port to 89ti), not from the ghost space.
+		- New internal function 'InstallVectors'
+		- Library are searched in current directory and in $system directory ONLY.
+		- The error code is not lost anymore.
+		- Add new error "Kernel Panick" which doesn't mean there is a bug in Preos, but a bug in your library system.
+		- kernel::exec is much more compatible with AMS.
+		- Merge both SHIFT+ON (shell & tictex) thanks to new kernel::exec
+		- Fix bug with _nostub reloc functions (They didn't return properly library name).
+		- 89ti port should be easy.
+		- Rewrite the install code.
+		- Check code is much more rigid.
+	* Update "vectors.txt", "format-v4.txt" and "ramcalls.txt"
+	* Re-add kernel emulation of 92+ on V200.
+	* Line1111 doesn't destroy registers anymore.
+	* Add new RAMCALLS.
+	* Fix KERNEL_SPACE and RegisterVector
+	* Fix atexit function.
+	* Error Frame / Status are more compatible with new AMS
+	* Modify the way to detect Heap to be 89 titanium compatible.
+	* Update the macro HW2TSR_PATCH
+	* Change the way H220xTSR installs.
+	* Starts to create a ti89 titanium version (still bugs in 'Hot Reset' and RetVal).
+	* Add a dynamic detection of Ghost Space.
+	* Improve RETVAL to support AMS 3.00.
+	* Improve HotReset to support AMS 3.00.
+	* Improve Stack Corruption detection (Return address).
+	* Fix crash problems (Forget InstallVectors before clean_up)
+	* Fix Heap bug on AMS 3.00 due to new code.
+	* Fix a crash bug in graphlib (Thanks to Bombermaze)
+	* Fix bug of crash under trap #4 for SMA
+	* Move GKeyFlush and OSClearBreak to kernel::exec.
+	* Fix bug of HW2TSR + RO files (2)
+	* Fix bug in clean_up (Main program runs twice and crashes).
+	* Fix potential bug if someone archived a RO archive.
+	* Patch font_medium at running time on Titanium (makes txtrider works)
+	* Search in program folder before searching in current folder
+
+v0.71:	* Change the way of calling of EV_centralDispatcher in HotReset to allows 'Auto-Alpha Off'
+	to work properly.
+	* Fix bug (Crash if Relocation failed): STUPID BUG added in the LAST prerelease of PreOS 0.70...
+	* Fix problem with trap #4 (Can't TSR it with Preos 0.70). Stupid bug. Fixed.
+	* Fix bug of kernel::LibsBegin (Wrong code section if program was archived).
+	* Update and merge Iceberg && Titanick diff about graphlib.
+	* Restore original graphlib due to bugs in MrNutz.
+	* RC2: Fix potential problem with trap #4 && trap #0 (I thought I have fixed it, but it seems not well).
+	* RC3: Fix another problem with trap #4.
+	* RC4: Fix another problem with h220xtsr.
+	* RC4: Add kernel::SystemDir RAMCALL
+	
+v0.72:	* Fix a bug in shrnklib in case of Low Memory
+	* Update shrnklib Library Version.
+	* Update 'kpack' to use new shrnklib.
+	* Update 'makeprgm' for new a68k.
+	* Fix bug in 'tios.h': Forget to define _nosavescreen.
+	* Support of NoSaveScreen Flag.
+	* General clean up of the structure of the project: massive use of Makefile.
+	* David Kueling libraries are now under LGPL.
+	* Rewrite kpack (much faster and cleaner).
+	* If Compressed Library of PackArchive is not found, nothing is displayed. Fixed.
+	* Update kernel.h: new libraries versions.
+	* Optimize Graphlib a few.
+
+v0.72-RC2:
+	* Fix some issue dealing with PedroM in sld.asm.
+	* Fix bug with nostub RAM program in kernel::exec (They appeared to be always
+	locked).
+
+v1.0.0:
+	* Minor improvement for PedroM in sld.asm.
+	* Check if ExtraRamCall address is odd in sld.asm.
+	* Fix bug in tios.h so that EXTRA_RAM_TABLE is always even.
+
+v1.0.1:
+	* Rebuild Preos with correct options to reduce program size.
+
+v1.0.2:
+	* Add new error message "Library %s is not a kernel library."
+	for filename which aren't in Kernel V4 format but have the same name
+	as the requested library.
+	* Change when Preos saves the library which has trigered an error:
+	the library which trigers the error shouldn't be lost anymore.
+	* Handle the error type while searching for libraries differently:
+	the nature of the error (NotFound, Invalid Format and Wrong Version)
+	is modified while browsing the calculator for it;
+	so that its doesn't report "Library not found" when there is in fact
+	a wrong library version.
+	* Explicit call to RegisterError while relocating and when the
+	requested function does not exist: the name of the library which
+	produces a wrong version isn't corrupted anymore.
+
+v1.0.3:
+	* Fix bug with new AMS 3.10 on titanium (Some variables are not
+	in the $8000 range anymore).
+
+v1.0.4:
+	* Fix bug in ReturnValue (the anti-stack corruption prevents this
+	to work).
+
+v1.0.5:
+	* Add optional trace support (for debugging purposes).
+	* Use an up to date version of genlib (Build without optimization to reduce size).
+	* Fix a bug in kernel::exec: The executable name added in the cache was wrong.
+
+v1.0.6:
+	* Fix problem of the Shared Linker with PedroM 0.82
+	* Fix a bug in the shared linker if the export offset is null.
+
+v1.0.7:
+	* Fix a bug which prevents PreOS to report properly some errors
+	to the user.
+	* Fix a bug in the shared linker if the Pack Archive contains
+	 some static members for which some part of the offset is 0.
+	* Clean up kpack.
+
+v1.0.8:
+	* Fix a bug in case of invalid return code in case of the library is not found for kernel::LibsExec
+	* Update version of genlib with fixed tile engine (Build without optimization to reduce size) .
+
+v1.0.9:
+        * brwslib: support for KEY OFF
+        

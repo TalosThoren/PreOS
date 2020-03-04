@@ -1,0 +1,353 @@
+ ----------------------------------------------------------------------------
+			  PACKER - 92 v1.20
+         for FARGO II, v0.2.x (tested with FARGO 0.2.3 - 0.2.7.1)
+		      by David Khling 1997/98
+ ----------------------------------------------------------------------------
+
+        -----------------
+	LICENSE 
+	-----------------
+
+PACKER92 - Copyright 1997, 1998 David Kuehling
+Adaptation for TI-89/92+ - Copyright 2002, 2003, 2004, 2005 Patrick Pelissier
+
+This file is part of the PACKER92 Library.
+
+The PACKER92 Library is free software; you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation; either version 2.1 of the License, or (at your
+option) any later version.
+
+The PACKER92 Library is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
+License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with the MPFR Library; see the file COPYING.LIB.  If not, write to
+the Free Software Foundation, Inc., 59 Temple Place - Suite 330, Boston,
+MA 02111-1307, USA.
+
+	-----------------
+	  INTRODUCTION
+	-----------------
+
+PACKER - 92 is a tool for compressing data for Fargo programs. These Data
+can be any kind of graphics, texts or even a68k - data definitions. The
+compression is made on a PC with the program PACKER92.exe The compressed
+file can be included with the Fargo program by the INCBIN - directive, and
+is uncompressed by the function pk92lib::Extract. The algorithm which is
+used by PACKER92.exe combines some kind of an Entropy-, Lempel-Ziv-
+and Run-Length-Encoding. My implementations of those algorithms are very
+speed-optimized, and therefore quite ineffective. But in combination they
+become more powerful, and are quite a bit better than Huffman.
+
+Beside PACKER92, there are 2 other programs (not included here), that use
+this algorithm. PK92SFX - that creates self-extracting fargo programms of
+other .92p-fargo progies, and UGPCONV (+UGPLIB), which converts .tga - files
+to a special graphics format for Fargo programs, called UGP (united graphics),
+that can contain the picture-data packer92 - compressed.
+
+If you want to use it, you should first read this doc completely. I hope
+it contains all neccessary information, you will need. If you aren't shure
+about some things, look at the samples, or write me an email.
+
+
+NEW IN THIS VERSION:
+  * Now archives greater than 32767 bytes work. (But Fargo programms greater
+    than 32767 bytes still cause problems - but this is not my fault).
+  * I corrected some very bad english mistakes within this file.
+  * Fixed a little bug within the percent display routine for Normal
+    Archives
+  * I also fixed some bugs within the include file creation. (Especially for
+    Solid archives)
+  * Now you can use wildcards, to specify an input file. (In fact, you could
+    do this also in older versions, but I didn't know that. - special feature
+    of the DJGPP compiler)
+
+	-----------------
+	  PACKER92.exe
+	-----------------
+
+The compression-program, PACKER92.exe, is quite slow since it was completely
+written in C (The assembler-prototye was 10 times faster). But therefore
+I can now port it to every system like Macintosh & Co. PACKER92.exe was
+first developed with a TC 3.0 - compiler. But then I got the DJGPP - C
+compiler, which compiled so optimized, that the new PACKER92.exe run about
+2 times faster than the TC 3.0 - compiled one!!! If you are a C - programer,
+and you haven't got DJGPP, you can download it from >http://www.delorie.com<.
+
+
+PACKER92.exe's syntax is the following:
+
+PACKER92 -X [@]sourcefile1 [@]sourcefile2 ... destinationfile
+
+-X	specifies the archive's type. It can be -d (divided), -n (normal),
+	-s (solid) and -p (program data).
+	These types are discussed later.
+sourcefileX is a sourcefile. You can include up to 255 sources.
+	Sourcefiles should never be greater than 65535 Bytes.
+        You can use wildcards, like '*.*' or 'pic??.bin'. These files will
+        be processed in alphabetical order.
+@sourcefileX is a list-file. This list file can contain the names of sources,
+	divided by line-breaks. e.g.:
+
+		listfile.par
+		------------
+	c:\pictures\pic1.2bp
+	c:\pictures\pic2.2bp
+	c:\pictures\pic3.2bp
+	c:\pictures\pic4.2bp
+	c:\pictures\pic5.2bp
+		-------------
+
+	The files can be compressed by:
+	  PACKER92 -n @listfile.par archive.p92
+	This is the same like:
+	  PACKER92 -n c:\pictures\pic1.2bp c:\pictures\pic2.2bp c:\pictures\pi
+	  c3.2bp c:\pictures\pic4.2bp c:\pictures\pic5.2bp archive.p92
+
+destinationfile specifies the destination file. The destination should
+	NEVER become greater than 65535 Bytes. Else strange things might
+	happen...
+
+	Additional to the destination file, a file with the same name, but
+	ending on .inc is created. This file contains some equ-macros for
+	accessing the archive more easyly.
+
+	-----------------
+	  Archive Types
+	-----------------
+
+To understand the difference between the archive-types, you should know a
+little bit about how PACKER92 works. The algorithm optimizes the following
+things:
+	* Frequenly bytes get shorter codes than seldom bytes. To uncompress
+	  this kind of compression, the archive must contain a Translation
+	  Table.
+	* Repetitions of byte-patterns (e.g.: "abc abc")can be compressed,
+	  by writing a Match Tag into the archive, that points to the
+	  location, where the pattern is again. These Match Tags can only
+	  point backwards. Match tags for short distances can be coded
+	  shorter than those for long distances.
+	* Repetitions of one byte (e.g. "iiiiiii") can be coded as "Byte X
+	  repeats XXXX times".
+
+-d Divided Archive type:
+	Divided archives consist of 1 to 255 files, that have all their
+	own Translation Table. Each file can be uncompressed seperatly.
+	Match Tags can't point to data in other	files. This type should
+	be used for big and different data (e.g. pictures and texts in
+	one archive)
+        I don't know, whether the name 'divided' matches very well, what
+        this archive should be, 'seperated' is perhaps better. However,
+        I realized this fault to late, to correct it in all files where
+        it is used (and I'm too lazy).
+-n Normal Archive type:
+	Is almost the same as the Divided Archive Type, but it has only
+	one translation table for all files. That's why it compresses
+	each file itsself less optimal, but needs less space for
+	translation tables. It is very practical for small, and similar
+	data (many texts or pictures in one archive). This type is almost
+	allways the best one.
+-s Solid Archive type:
+	Solid Archives are very different to Divided and Normal Archives.
+	A Solid Archive contains only one compressed block, that contains
+	all files. That's why you can only uncompress all files at once.
+	To access the different files, you have to use the .inc file.
+	e.g. if a1 points to the uncompressed block, and the archive
+	contains File1.txt and File2.txt, you can access them by
+	file1_txt(a1) and file2_txt(a1). The opposite of Solid Archives
+	is, that Match Tags can point to locations in the other files.
+	That's why this Archive type can be compressed very good. You
+	should use it for small files, that have to be used all together.
+	(e.g. many little pictures, that are shown on the screen at once)
+-p Program Data Archive type:
+	Program Data archives were made up by a68k data definitions. They
+	can be accessed like Solid Archives. (In fact they have exactly
+	the same structure like Solid Archives)
+	PACKER92 excepts the following data types:
+	dc.b, dc.w, dc.l, ds.b, ds.w, ds.l
+	Numbers can be dezimal (e.g. 10), hexadezimal (e.g. $A) or binary
+	(e.g. %1010)
+	Example:
+		    prgmdat.asm
+		   -------------
+
+	String1:	dc.b "Hello World",0
+	String2:	dc.b "Hello2",0
+	OtherData:	dc.w 0, 0, 0, 0
+			dc.l 0, 1, 1, 1
+			dc.l %1110000000111
+			dc.w $FFFF
+	TempData	ds.b 256
+
+		   --------------
+
+	compression: PACKER92 -d prgmdat.asm prgmdat.p92
+
+	When a1 points to the uncompressed data (after you extracted them
+	with pk92lib::Extract) you can access them with the help of the
+        equates defined in the prgmdat.inc, which is created automatically,
+        as:
+
+                include "prgmdat.inc"
+	String1(a1)
+	String2(a1)
+	OtherData(a1)
+	TempData(a1)
+
+	Perhaps you wonder, why to use ds.b, to allocate memory inside a
+	compressed file, but this is quite practical. ds.b 256 is translated
+	to 256 bytes with the value 0. These bytes are stored in the archive
+	as a repetition, and take only 3-5 bytes. This is much less, than the
+	program code, that would be neccessary to allocate memory dynamically
+	by tios::HeapAlloc. Program Data archives can be used like normal
+	program data, but have the opposite, that every time when they are
+	uncompressed, the data are the same, even if they were modified
+	by the progam. (e.g. you don't have to initialize a ds.b 256 - array
+        every time the program is executed)
+
+Error Messages:
+      All errors, that are returned by PACKER92.exe should be self-explaining.
+      If the error occures during parsing in a program data file, it will
+      have the following format:
+         [xxxx] ERROR: errormessage
+      xxxx will be the line-number, in the program data file, where the parser
+      didn't understand something. (e.g. dc.y "Ha Ha, you can't parse me")
+
+	-----------------------------
+	  The Uncompression Routine
+	-----------------------------
+
+To uncompress any kind of PACKER92 - Archives you allways use the same
+routine, pk92lib::Extract.
+It's parameters are:
+    a0.l = pointer to archives' begin (mustn't be odd)
+    d0.w = number of file (not neccessary for Solid and Program Data
+	   Archives) 0 = 1st file, 1 = 2nd file, 2 = 3rd file...
+Return-Values:
+    d0.b = 0 OK
+    d0.b = $FF Error
+    a1   = pointer to uncompressed file
+    d1.w = handle of uncompressed file
+    d2.l = Length of uncompressed file
+    All other registers stay as they are.
+
+    The error code, d0.b = $FF, can be caused by different things:
+      * there is not enough memory, to uncompress the file
+	(the uncompression routine itsself needs NO memory)
+      * the archive type is unknown
+      * the archive extracted more byte, than the header of the compressed
+        file said.
+    NOTE: The uncompression routine is optimized on beeing small and fast,
+	  not on choosing, which archive is the right one.
+	  (e.g. if you want to uncompress file #255 in an archive, that
+	  has only 3 files, it won't report an error)
+
+If you used the Divided or Normal Archive type, the file-numbers are
+defined in the .inc - file, together with their length.
+
+Example: When you compressed File1.2bp and File2.2bp, than the .inc file
+	 looks like the following:
+
+			sample.inc
+		       ------------
+
+ *************************************************************************
+ *            PACKER92 - by David Khling 1997/98 - Header File          *
+ *-----------------------------------------------------------------------*
+ *  Archive: d:\fargo\sample.inc                                         *
+ *************************************************************************
+
+
+	;Archive type: NORMAL
+
+ file1_2bp EQU 0			;Number of file1.2bp
+ file1_2bpl EQU 3072			;Length of file1.2bp (uncompressed)
+ file2_2bp EQU 1                        ;Number of file2.2bp
+ file2_2bpl EQU 3072			;Length of file2.2bp
+
+		       ------------
+
+Header files for Program and Solid Archives allways contain the offsets
+of the labels (Program Data) or of the files (Solid Archives).
+Example:
+   PACKER92 -s file1.2bp file2.2bp file3.2bp sample.p92
+   will create the following header file:
+
+			sample.inc
+		       ------------
+
+ *************************************************************************
+ *            PACKER92 - by David Khling 1997/98 - Header File          *
+ *-----------------------------------------------------------------------*
+ *  Archive: d:\fargo\sample.inc                                         *
+ *************************************************************************
+
+
+	;Archive type: SOLID
+
+ file1_2bp EQU 0		;Offset of file1.2bp in archive
+ file1_2bpl EQU 3072            ;Length of file1.2bp (in bytes)
+ file2_2bp EQU 3072             ;Offset of file2.2bp
+ file2_2bpl EQU 3072            ;Length of file2.2bp
+ file3_2bp EQU 6144	        ;...
+ file3_2bpl EQU 3072
+
+		       ------------
+
+Additional to the function pk92lib::Extract, there is another function,
+pk92lib::FreeMem, that automatically unallocates the memory, allocated
+by Extract. This works, because the library allways stores the handle
+of the file, that was uncompressed.
+
+Example:
+        include "pk92lib.h"
+        include "archive.inc"
+
+	lea  Archive(PC), a0	       ;pointer to compressed data
+	move.w	#File1_pic, d0         ;uncompress file1.pic
+	jsr	pk92lib::Extract
+	bsr	ShowPic_pointedby_a1
+	jsr	pk92lib::FreeMem
+        rts
+
+NOTE: This is just an example, not a complete program.
+
+For further information watch the sample files.
+NOTE: 	If you want to compile these files, you will have to change the
+	directories in the include commands.
+
+	--------------
+	  Known Bugs
+	--------------
+
+I wouldn't have put it anywhere, If I had known, that there are bugs in it.
+If you think you found one (I hope you won't), email me.
+Some things that might look like bugs:
+        * You put an archive into the programm, and the programm became bigger
+          than 32767 bytes. Fargo doesn't support such huge files.
+        * You didn't aligned an archive at an odd address. This could cause
+          an Address Mode error. To align it, put a "ds.w 0" before it.
+
+	-----------------
+	  Other Things
+	-----------------
+
+If you have questions, suggestions, or you found a bug, feel free to mail
+me:
+	ppelissi@caramail.com (Current maintainer)
+	dvdkhlng@gmx.de (Original author)
+
+If you haven't got an IBM - PC, write me a mail, and I will send you the
+sources, that you can compile them (you would need a C - compiler).
+I will also be ok to send you the sources, if you want to use my packer
+for own projects.
+
+Thanks:
+	Jimmy Mardell, for Huffman, which was the measure for my packer.
+	David Ellsworth, for obvious reason.
+        DJ Delorie, for the genious DJGPP - C - compiler.
+	My school, for giving me access to the possibilities of email and
+	internet.

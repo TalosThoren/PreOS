@@ -1,0 +1,705 @@
+-----------
+I-RAM CALLS
+-----------
+
+RAM CALLS are just variables of the kernel that you can access.
+
+1-CALCULATOR
+
+	CALCULATOR is a pointer to a one_byte variable indicating
+	which calculator the program is running on. (=0 on the 89, =1 on the 92 Plus)
+
+	Example:
+		tst.b	CALCULATOR
+		beq	\89code
+		(..)	;code for the 92 Plus
+	\89code
+		(..)	;code for the 89
+
+	Valid values are
+		CALC_TI89TI	:	-1
+		CALC_TI89	:	0
+		CALC_TI92PLUS	:	1
+		CALC_TI92	:	2
+		CALC_V200	:	3
+
+2-HW_VERSION
+
+	HW_VERSION is a pointer to a one byte variable indicating
+	the harware version of the calculator the program is running on
+
+	Example:
+	
+		cmp.b	#1,HW_VERSION
+		beq	\HW1code
+		(..)	;code for HW2 calcs
+	\HW1code
+		(..)	;code for HW1 calcs
+
+	Values for HW_VERSION are
+		0 -> Ti-92 calculators
+		1 -> HW1 (Ti-89 / Ti-92 & module +)
+		2 -> HW2 (Ti-89 / Ti-92+ / V200)
+		3 -> HW3 (Ti-89 titanium)
+
+3-HW_REVISION_VERSION
+
+	Do not use this indicator. It is obsolete.
+	
+4-EMULATOR
+	(Preos 0.62 only)
+ 	
+	EMULATOR is a pointer to a one byte variable indicating
+	if the program is running from an emulator. Note than a perfect emulator
+	will have always this flag sets at 0. But i don't know if such an emu exists.
+	Example:
+		tst.b	EMULATOR
+		beq	\ok
+		(..)	;code for Emu calcs
+	\ok
+		(..)	;code for Real calcs
+
+	Values for EMULATOR are
+		$00 -> Real Calc.
+		$FF -> Emulator (Vti).
+	Value $01-$FF may indicate different sort of emulators (Vti / Wti)
+
+5-ROM_VERSION
+
+	ROM_VERSION is a variable which tells the version of
+	the Advanced Mathematics Software installed on the calculator.
+
+	|-------------------------------------------------------|
+	| ROM_VERSION values	| Corresponding ROM Version	|
+	|-------------------------------------------------------|
+	| $0100			|	89  1.00		|
+	| $0105			|	89  1.05		|
+	| $0201			|	89  2.01		|
+	| $0202			|	89  2.02		|
+	| $0203			|	89  2.03		|
+	| $0204			|	89  2.04		|
+	| $0205			|	89  2.05		|
+	| $0208			|	89  2.08		|
+	| $0209			|	89  2.09		|
+	| $1100			|	92+ 1.00		|
+	| $1101			|	92+ 1.01		|
+	| $1105			|	92+ 1.05		|
+	| $1201			|	92+ 2.01		|
+	| $1202			|	92+ 2.02		|
+	| $1203			|	92+ 2.03		|
+	| $1204			|	92+ 2.04		|
+	| $1205			|	92+ 2.05		|
+	| $1208			|	92+ 2.08		|
+	| $1209			|	92+ 2.09		|
+	| $2101			| 92 1.0b1  September 13, 1995	|
+	| $2102			| 92 1.2    October 11, 1995	|
+	| $2103			| 92 1.3    October 20, 1995	| 
+	| $2104			| 92 1.4    November 17, 1995	| 
+	| $2105			| 92 1.5    01/02/96           	| 
+	| $2107			| 92 1.7    01/18/96          	| 
+	| $2108			| 92 1.8    02/28/96          	|
+	| $2109			| 92 1.10   03/20/96           	| 
+	| $2110			| 92 1.10   03/26/96           	| 
+	| $2111			| 92 1.11   04/11/96           	|
+	| $2112			| 92 1.12   05/08/96           	|
+	| $2201			| 92 2.1    08/19/96           	| 
+	| $3207			|	V200 2.07		|
+	| $3208			|	V200 2.08		|
+	| $3209			|	V200 2.09		|
+	| $F300			|	Titanium 3.00		|
+	|-------------------------------------------------------|
+
+6-LCD_WIDTH
+7-LCD_HEIGHT
+
+	LCD_WIDTH and LCD_HEIGTH are variables whose values are
+	the width and heigth (in pixels) of the actual screen of the calculator.
+	Their respective values are (160, 100) on TI89, (240, 128) on TI92+.
+
+	Example:
+		move.w	#LCD_WIDTH,d0
+	now d0 = 160 if the program is running on a TI89,
+	or  d0 = 240 if the program is running on a TI92+
+
+8-LCD_LINE_BYTES
+
+	LCD_LINE_BYTES is a variable whose value is the size in bytes of on line
+	of the usable LCD memory. Its value is 20 on TI89, 30 on TI92+
+
+9-LCD_SIZE
+
+	LCD_SIZE is a variable whose value is the size in bytes of the usable LCD memory.
+	Its value is 2000 on TI89, 3840 on TI92+
+	
+10-KEY_LEFT
+11-KEY_RIGHT
+12-KEY_UP
+13-KEY_DOWN
+14-KEY_UPRIGHT
+15-KEY_DOWNLEFT
+16-KEY_DIAMOND
+17-KEY_SHIFT
+
+	These variables contain the values of the keycodes of some keys
+	(the names are explicit).
+
+	Example
+		jsr	userlib::idle_loop
+		cmp.w	#KEY_LEFT,d0	; the user pressed 'letf'
+		beq	left
+		cmp.w	#KEY_DIAMOND+264 ; the user pressed diamond+esc
+		beq	diam_esc
+		...
+	
+18-tios::ROM_base
+
+	It is the address of the first byte in ROM.
+	Its value is $200000 on 89, $400000 on 92+
+
+19-tios::font_medium
+20-tios::font_small		(Preos 0.62 only)
+21-tios::font_large		(Preos 0.62 only)
+
+	These are pointers to the Boot font tables of each font of the calculator (on emulator, it may be the OS font tables).
+	There are an array of 256 elements. Each element is the picture of the char in the selected font.
+	
+	Medium : Each element is 8 bytes len.
+		Ex:
+			dc.b	%00111000
+			dc.b	%01000100
+			dc.b	%01000100
+			dc.b	%00111000
+			dc.b	%01000100
+			dc.b	%01000100
+			dc.b	%01000100
+			dc.b	%01000100
+		This table is at the address tios::font_medium+'A'*8
+		The weight of the sprite is 6 pixels.
+		The height of the sprite is 8 pixels.
+		
+	Large:	Each element is 10 bytes len.
+		The weight of the sprite is 8 pixels.
+		The height of the sprite is 10 pixels.
+	
+	Small:	Each element is 6 bytes len.
+		The weight of the sprite is in average 4 pixels, but it changed.
+		The height of the sprite is 5 pixels.
+		Ex:
+			dc.b	3		; Width of the sprite
+			dc.b	%01000000
+			dc.b	%10100000
+			dc.b	%11100000
+			dc.b	%10100000
+			dc.b	%10100000
+		
+
+22-tios::FolderListHandle
+
+	This is the handle of the folder list.
+	See docs about VAT for more information.
+
+	Example:
+		move.w	#tios::FolderListHandle,d0	; d0 = handle of the folder list
+
+23-tios::MainHandle
+
+	This is the handle of the main folder.
+	See docs about VAT for more information.
+
+	Example:
+		move.w	#tios::MainHandle,d0	; d0 = handle of the main folder
+
+24-tios::kb_globals
+
+	It is a pointer to some keyboard variables.
+	You should not use it directly but use instead : KEY_PRESSED_FLAG and GETKEY_CODE
+	They use the standard AutoInt1.
+	
+	Example:
+	\wait	tst.w	KEY_PRESSED_FLAG	; Wait for a key
+		beq.s	\wait
+		move.w	GETKEY_CODE,d0		; Read the key value
+	Is an equivalent of userlib::idle_loop (Even if idle_loop is better (It consumes less energy and you can turn off the calc).
+	To add Idle function, you can do like this :
+	\wait	jsr	kernel::Idle		; Idle the calc (Saves batt).
+		tst.w	KEY_PRESSED_FLAG	; Wait for a key
+		beq.s	\wait
+		move.w	GETKEY_CODE,d0		; Read the key value
+	
+25-tios::Heap
+
+	It is a pointer to the address of the Heap Table.
+	Each element is an address to the allocated handle.
+	This is a table containing 2000 addresses of all handles allocated.
+	The function Deref does in fact : return tios::Heap[Handle*4]
+
+26-ReturnValue
+
+	Makes it possible to return values to the TIOS via an assembly program.
+	For more information about this, you should download tigcclib by Zeljko
+	Juric from www.ticalc.org.
+	
+	Example:
+		move.l	tios::estack,ReturnValue
+	You should push something on the estack first !
+		
+27-kernel::Idle	(Preos and UniOs only)
+
+	void Idle (void); (=> d0-d2/a0-a1 are destroyed)
+	
+	Let I be the interrupt mask, Idle returns as soon as an AIn interrupt
+	with n > I is triggered. So there is a notable difference with
+	tios::idle : whatever I, tios::idle returns if n > 1, unless a key is
+	down : in this case, it also returns if n = 1.
+
+	Example:
+		jsr	kernel::Idle
+		
+28-kernel::Exec	(Preos only)
+
+
+	Input:
+		d0.w = Handle of the program to execute.
+	Destroy:
+		d0-d2/a0-a1
+	It executes the program, giving its handle. 
+	
+	Warning: if you are using library such as graphlib, you should :
+		+ know perfectly what the program does.
+		+ uninstall gray4 and choosescren, ie. reinstall the current configuration.
+
+	Example:
+		kernel_Exec(SymFindPtr($(doors))->Handle);
+		
+29-kernel::Ptr2Hd	(Preos only)
+
+	Input:
+		a0.l = a pointer
+	OutPut:
+		d0.w = Handle 
+	Destroy:
+		d0
+	
+	It is more usefull function than HeapPtrToHandle.
+	It gives the handle which contains the pointer.
+	
+	Example:
+		lea	0(Pc),a0
+		jsr	kernel::Ptr2Hd
+			; d0.w = handle of the program !
+
+30-kernel::Hd2Sym	(Preos only)
+	
+	Input:
+		d0.w = Handle
+	Output:
+		a0.l -> SYM struct of the handle (NULL if we don't find such a struct.
+	Destroy:
+		a0
+		
+	Warning: It may use internally SymFindFirst / SymFindNext !
+	
+	Example:
+		lea	0(Pc),a0
+		jsr	kernel::Ptr2Hd
+		jsr	kernel::Hd2Sym
+			; a0 -> SYM_ENTRY of the program !
+
+31-kernel::LibsBegin	(Preos only)
+
+	Input:
+		a0.l -> Lib Name (ANSI String)
+		d1.b = Number of minimum version of the library
+	Output:
+		a0.l -> Lib descriptor.
+	Destroy:
+		a0
+	
+	It relocs the lib, and gives you a lib descriptor you have to give as an arg for the others routines.
+	It returns 0 if the library is not found, in an invalid format or too old.
+
+32-kernel::LibsEnd	(Preos only)
+
+	Input:
+		a0.l -> Lib descriptor
+	Destroy:
+		Nothing
+	
+	It unreallocs the library, and frees it if necessary.
+
+33-kernel::LibsPtr	(Preos only)
+
+	Input:
+		a0.l -> Lib descriptor
+		d0.w = Number of the function
+	Output:
+		a0.l = Pointer to the function or NULL
+	Destroy:
+		a0
+	
+	It gives a pointer to the required function of the library.
+
+34-kernel::LibsCall(LIB_DESCRIPTOR l, WORD function, ...)	(Preos only)
+
+	The parameters are pushed on the stack.
+	It will call the function without modifying the registers, and it will pop its argument 
+	during the call (LIB_DESCRIPTOR and function).
+	
+	Destroy:
+		Like the called function
+
+	Example:
+		lea	totolib(Pc),a0		; Toto string
+		moveq	#1,d1			; Version 1
+		jsr	kernel::LibsBegin
+		move.l	a0,LibsDVar
+		beq.s	\error
+		
+		...
+		
+		pea	arg2function		; Arg2 of the function
+		move.w	#arg1function,-(a7)	; Arg1 of the function
+		move.w	#3,-(a7)		; Function 3
+		move.l	LibsDVar,-(a7)		; Libs descriptor
+		move.w	#145,d0			; D0 = 145 for the function !
+		jsr	kernel::LibsCall	; Call the function with stack args (arg2function, arg1function) and register args (d0).
+		lea	(2+4+2+2+2+4)(a7),a7
+
+		...
+
+		move.l	LibsDVAr,a0
+		jsr	kernel::LibsEnd
+		...
+		
+	totolib		dc.b	"totolib",0
+		BSS
+	LibsCall	dc.l	0
+	
+35-kernel::LibsExec(char *lib_name, WORD function, BYTE version, ...)	(Preos only)
+
+	The parameters are pushed on the stack.
+	It calls the function without modifying the registers, and it pops its argument 
+	during the call (LIB_DESCRIPTOR, function, and version).
+	BYTE doesn't follow the C convesion for char (Sorry). Uses macro instead.
+
+	It relocs the library, calls the function and unreallocs the library.
+	The parameters pushed on the stack are corrupted.
+	If there is an error, the parameter 'lib_name' equals zero after the call.
+
+	Destroy:
+		Like the called function
+
+	Example:
+		pea	arg2function		; Arg2 of the function
+		move.w	#arg1function,-(a7)	; Arg1 of the function
+		move.b	#1,-(a7)		; Version 1
+		move.w	#3,-(a7)		; Function 3
+		pea	LibsName		; Libs Name
+		move.w	#145,d0			; D0 = 145 for the function !
+		jsr	kernel::LibsExec
+		tst.l	(a7)
+		lea	(4+2+2+2+4)(a7),a7	; Does not affect the flag
+		beq.s	\error
+		...
+
+	LibsName	dc.b	"totolib",0
+
+36-kernel::HdKeep	(Preos only)
+
+	Input:
+		d0.w = Handle
+	Destroy:
+		Nothing
+		
+	It prevents the handle to be removed by the handle protection system of the kernel.
+	
+37-kernel::ExtractFromPack	(Preos only)
+
+	Input:
+		a5 -> Ptr to pack archive (ptr to the '68cA' signature)
+		d0.w = file index
+	Output:
+		d0.w = handle (Standard C function) or H_NULL
+	Destroy:
+		d0-d2/a0-a1 (Standard C funcion)
+		
+	Extract the file d0 from the pack a5 calling the right library to extract it.
+	Use kernel::ExtractFile instead (High level function)
+	
+38-kernel::ExtractFile	(Preos only)
+
+	Input:
+		a2 -> String name of the file (No folder)
+	Output:
+		d0.w = Handle or H_NULL (Standard C function)
+	Destroy:
+		d0-d2/a0-a1 (Standard C function)
+
+	Find the file a2 in all the Pack Archive files of the calculator.
+	If it is found, it is extracted by the right library.
+	It isn't added to the VAT.
+	It returns the created Handle which has to be free later.
+	
+	The name is not limited to 8 bytes, and it can contains space, ...
+	But if it is the lenght of the string is > 8, you won't be able to
+	add it in the VAT (So you can not use it as library).
+	Only asm/c programs calling this function may access those files.
+
+	Example:
+		lea	ziplib_str(Pc),a2
+		jsr	kernel::ExtractFile
+		tst.w	d0
+		beq	error
+		...
+	ziplib_str	dc.b	"ziplib",0
+
+39-kernel::ExtractFileFromPack	(Preos 0.64 or above)
+
+	Input:
+		a2 -> String name of the file (No folder)
+		d0.w = Handle of the Pack Archive
+	Output:
+		d0.w = Handle or H_NULL (Standard C function)
+	Destroy:
+		d0-d2/a0-a1 (Standard C function)
+
+	Find the file a2 in the specified Pack Archive file.
+	If it is found, it is extracted by the right library.
+	It isn't added to the VAT.
+	It returns the created Handle which has to be free later.
+	
+	The name is not limited to 8 bytes, and it can contains space.
+	But if it is the lenght of the string is > 8, you won't be able to
+	add it in the VAT (So you can not use it as library).
+	Only asm/c programs calling this function may access those files.
+
+	Example:
+		move.w	...,d0			; Handle of the file
+		lea	comment_str(Pc),a2	; We will extract file 'comment' from this pack
+		jsr	kernel::ExtractFileFromPack
+		move.w	d0,d5
+		beq	error
+			DEREF d0,a0
+			addq.l	#3,a0		; a0 -> Comment of the pack archive
+			...			; some stuff
+			move.w	d5,-(a7)
+			jsr	tios::HeapFree	; Free the comment
+			addq.l	#2,a7
+	comment_str	dc.b	"comment",0
+
+40. kernel::exit (PreOS 0.70 or above)
+
+	Input:
+		d0.w = exit code
+	Output:
+		No output
+	Destroy:
+		Non-sense
+		
+	It performs the standard ANSI exit function. Note that exiting the program
+	with kernel::exit is a normal way, i.e. the _exit function is NOT called.
+	
+41. kernel::atexit (PreOS 0.70 or above)
+	
+	Input:
+		a0 -> Ptr to callback function
+	Output:
+		d0.w = 0 if success to register callback function.
+	Destroy:
+		d0-d2/a0-a1 (Standard C function)
+
+	It performs the standard ANSI atexit function.
+	
+42. kernel::RegisterVector (PreOS 0.70 or above)
+
+	Input:
+		d0.w = Index in Vector Table (-4 is ev_hook, 4 is reset, ...)
+		a0 -> Ptr to vector to register
+	Output:
+		Nothing
+	Destroy:
+		d0-d2/a0-a1 (Standard C function)
+
+	It registers a vector so that it is not erased when the kernel terminates.
+	Warning: no check is currently done.
+		
+43. GHOST_SPACE (PreOS 0.70 or above)
+
+	It is a dynamic time constant (like ROM_BASE).
+	Its value is $40000 for all ti 68k except for titanium.
+	Its usage is deprecated.
+	
+44. KERNEL_SPACE (PreOS 0.70 or above)
+
+	It is a dynamic time constant (like ROM_BASE).
+	Its value is $40000 for all ti 68k if hw2tsr, 0 if hw1 or hw2,3patch.
+	It is the value to add at the main memory to move it in the kernel execution space.
+	Its usage is for expert users only.
+
+45. kernel::SystemDir (PreOS 0.71-RC4 or above)
+
+	It is a string (ANSI C) containing the system directory.
+	It may be empty (ie the empty string) if the kernel doesn't support system directory.
+
+	ASM Example:
+		lea	-20(a7),a7				; Stack frame
+		pea	(a7)					; Push stack frame ptr
+		pea	kernel::SystemDir			; Push name
+		ROM_THROW StrToTokN				; Convert ANSI c to SYMSTR Ti 
+		move.w	#1,(a7)					; Push TRUE	
+		pea	(a0)					; Push SYSM_STR Folder Name
+		ROM_THROW FolderCur				; Set current Folder
+		lea	32(a7),a7				; Pop Stack
+	C Example:
+		char	Buffer[20];
+		FolderCur (StrToTokN (&kernel_SystemDir, Buffer), TRUE);
+
+---------
+II-Macros
+---------
+
+1- EXTRA_RAM_TABLE / EXTRA_RAM_ADDR
+
+ This macro declares to the compiler that there is an Extra RAM table in your program.
+An extra RAM table is a table which contains some variables or values you have found,
+which are different on the 89 and the 92 Plus, and are not managed by the kernel.
+
+
+EXTRA_RAM_ADDR
+
+* This macro defines an extra RAM variable. Example:
+	EXTRA_RAM_ADDR	0000,var,10,20
+* 0000 is the index of the extra RAM variable. It is a 4 digit hex number.
+* var is the name of this variable. You can access it in your file with:
+	move.w	#var,d0	;d0=10 or 20
+* 10 is the value on the 89, 20 the value on the 92 +
+
+	Example:
+		EXTRA_RAM_TABLE
+		EXTRA_RAM_ADDR	0000,var1,10,20
+		EXTRA_RAM_ADDR	0001,var2,18,0
+		EXTRA_RAM_ADDR	0002,var3,1,200
+		EXTRA_RAM_ADDR	0003,var4,165,155
+		
+		...
+		move.w	#var1,d0	; d0 = 10 on 89, 20 on 92+
+		move.w	#var2,d1	; d1 = 18 on 89, 0  on 92+
+		
+2- tios::DEREF     macro   ; Dn,An	(or DEREF)
+
+	This macro has 2 parameters:
+		\1 is a Dn register which contains a handle
+		\2 is a An register which will receive the adress corresponding to the handle.
+
+	Example:
+		tios::DEREF d0,a0
+		; a0 = tios::Heap[d0*4]
+		
+3-SetFont	macro	; IMM
+
+	This macro has 1 parameter:
+		\1 is the number of the font you want to set (0,1 or 2)
+
+4-WriteStr	macro	;x,y,col,str
+
+	This macro has 4 parameters:
+		\1	the x coordinate
+		\2	the y coordinate
+		\3	the color (0,1,2,3 or 4)
+		\4	the label of the string to print
+	Example:
+		WriteStr #10,#10,#4,string
+		rts
+	string	dc.b "Hello world",0
+		EVEN
+
+5-WriteStrA	macro	;x,y,col,An
+	
+	Same a WriteStr but the 4th parameter is an adress register,
+	the pointer to the string.
+
+6-ROM_CALL	macro	; Rom_function number
+
+	Call a ROM function. It is just like 
+		jsr	tios::NameOfFunction
+	but for Nostub programs.
+	Example:
+		move.w	d0,-(a7)
+		jsr	tios::HeapDeref
+		addq.l	#2,a7
+	In Nostub
+		move.w	d0,-(a7)
+		ROM_CALL HeapDeref
+		addq.l	#2,a7
+	Don't forget to include 'RomCalls.h' instead of 'tios.h'
+	The disadvantage of ROM_CALL is that it is slower and bigger.
+
+7-ROM_CALL2	macro	; Rom_Function number
+
+	Get the address of a ROM function in a4.
+	(Depreaceted macro - do not use it)
+	
+8-ROM_PTR	macro	; Rom_Function number
+
+	Get the address of a ROM function in a0
+	
+9-ROM_THROW	macro	; Rom_Function number
+
+	Call a ROM function. It is just like 
+		jsr	tios::NameOfFunction
+	but for Nostub programs (on AMS 2.04) and for kernel programs (with Preos).
+	Example:
+		move.w	d0,-(a7)
+		jsr	tios::HeapDeref
+		addq.l	#2,a7
+	In Nostub
+		move.w	d0,-(a7)
+		ROM_THROW HeapDeref
+		addq.l	#2,a7
+	Don't forget to include 'RomCalls.h' AFTER 'tios.h'
+	The advantage of ROM_THROW is that you use only 2 bytes to call the function !
+	The disadvantage of ROM_THROW is that it is quite slow (But in general, it doesn't matter).
+
+10-FAST_ROM_CALL	macro ; Rom_Function number,an (with n>=2)
+
+	Call a ROM function. It is just like 
+		jsr	tios::NameOfFunction
+	but for Nostub programs.
+	Example:
+		move.w	d0,-(a7)
+		jsr	tios::HeapDeref
+		addq.l	#2,a7
+	In Nostub
+		move.l	ROMCALL_TABLE,a5
+		move.w	d0,-(a7)
+		FAST_ROM_CALL HeapDeref,a5
+		addq.l	#2,a7
+	Don't forget to include 'RomCalls.h'.
+	FAST_ROM_CALL is faster than ROM_CALL and smaller.
+	But it needs that you preload into an address register the address of the ROMCALL_TABLE.
+	So it is a good choice if you have to do multiple ROM_CALLS.
+	
+11-PUSH_LCD_MEM / POP_LCD_MEM macro ; Nothing
+	
+	Push the LCD_MEM into the stack.
+	Pop the LCD_MEM into the stack.
+	
+	Very usefull for Nostub programs.
+
+	Example:
+		include	"RomCalls.h"
+		xdef	_nostub
+		
+		PUSH_LCD_MEM		; the first line of code IS the entry point.
+		; Do your stuff.
+		POP_LCD_MEM
+		rts
+	
+12-DEFINE	macro	;symbol
+
+	Define and export a symbol.
+	It just does :
+	symbol	xdef	sumbol.
+	Example:
+		DEFINE	_version02	
+		

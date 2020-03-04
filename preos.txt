@@ -1,0 +1,378 @@
+                                                                        ..
+                                                                    .......
+     _________________                                          ...........
+     PPPPPPPPPPPPPPPPPPPPP=.%                               ................
+     |PPPPPPPPPPPPPPPPPPPPPPPP.#.                       ....................  ______
+     |PPPPPPPPPPPPPPPPPPPPPPPPPP.#.                 ......................_.OOOOOOOOOO._
+     °PPPPPPPP/######°PPPPPPPPPPP.#.            ......................_.OOOOOOOOOOOOOOOO%#.
+     'PPPPPPPP|##       °PPPPPPPPP##        .........................OOOOOOOOOOOOOOOOOOOOO#%
+      PPPPPPPP|##        "PPPPPPPP|#|   ...........................OOOOOOOOOOO%###%OOOOOOOO##.
+      PPPPPPPP|##         PPPPPPPPP##............................OOOOOOOOOO"##"     '"OOOOOO|#.
+      PPPPPPPP|##         "PPPPPPPP##...........................OOOOOOOOO"##...       'OOOOOO##
+      PPPPPPPP|##          PPPPPPPP##..........................OOOOOOOOO"#......       "OOOOO|#.
+      PPPPPPPP|##        ..PPPPPPPP r|......___...............|OOOOOOOO##.......        OOOOOO##
+      PPPPPPPP|##    .....PPPPPPPPP r|## .rrrrrrr.#..____.....OOOOOOOO|#.........       'OOOOO##__
+      PPPPPPPP|## ........PPPPPPPP'rr|#rrrrrrrrrrr eeeeeeeee.#OOOOOOOO##.........       _.%%SSSSSSSSSS'
+      PPPPPPPP|##     ../PPPPPPPPP rr.rrrrrrrrrrrrr eeeeeeeeeee.OOOOOO##.......... _.SSSSSSSSSSSSSSS'##
+      PPPPPPPP\##  _.=PPPPPPPPPPP'rrrrrrrrrrrrrrrr eeeeeeeeeeeeee.OOOO##..........SSSSSSSSSSSSSSSSS'##
+      PPPPPPPPPPPPPPPPPPPPPPPPP'rrrrrrrr"##'"rrrr ee"'#####"µeeeee.OOO|#........SSSSSSSSSSSSSSSSSS'##
+      PPPPPPPPPPPPPPPPPPPPPP"|rrrrrrrr"##...| r eeeeeer#.__  eeeeee.OOO##......SSSSSSSSS"OOOO#######
+      PPPPPPPPPPPPPPPPP""####rrrrrrrr"##....eeeeeeeeeeeeeeeeeeeeeeee OO.#.....SSSSSSSS'OOOOO|##"
+      PPPPPPPP#"########"'  |rrrrrrr'##   .eeeeeeeeeeeeeeeeeeeeeeeee OOO.##...SSSSSSS|OOOOOO##'
+      PPPPPPPP|##°          rrrrrrr|##     eeeee"#######%eeeeeeeeeee OOOOO.##.SSSSS|OOOOOOO'##.
+     .PPPPPPPP|##          |rrrrrrr'#      eeeee|##...""########OOOOOOOOOOOOO#.S|OOOOOOOOO|SS%##.
+     |PPPPPPPP|##          rrrrrrrr##      eeeeee.##  ...........OOOOOOOOOOOOOOOOOOOOOOOO|SSSSS%##.
+     |PPPPPPPPP##         |rrrrrrr|#       'eeeeeee.##.__ .........'"OOOOOOOOOOOOOOOOOO"'SSSSSSSS##
+     |PPPPPPPPP##         rrrrrrrr'#        "eeeeeeeeeeeeeeeeeeeee.....'"OOOOOOOOOOO"'.   "SSSSSS|#|
+     PPPPPPPPPP.##       |rrrrrrrr##          eeeeeeeeeeeeeeeeeee'##........SS. __.....    |SSSSS|#|
+     PPPPPPPPPP|##       rrrrrrrrr##           ''"eeeeeeeeeeee"'##     ....SSSSSS\##...._.SSSSSSS##
+     PPPPPPPPPPP##      |rrrrrrrrr##              __""#########"         .SSSSSSSSSSSSSSSSSSSSSS'#|
+     PPPPPPPPPPP##      rrrrrr"'  __...µùù########################ùµ.._   'SSSSSSSSSSSSSSSSSSSS'#'
+     PPPPPPPPPPP.##    |rr"' _.ù########################################ù._ "SSSSSSSSSSSSSSSS'##'
+     PPPPPPPPPPP|##      #ù##################################################µ._'"SSSSSSSS"###"
+    .PPPPPPPPPPPP##   .µ#########################@@%=""'¨¨'""=%@@@###############ù.########"
+    |PPPPPPPPPPPP.##.###################%""''¨¨¨¨¨¨¨            ¨¨¨¨''""%############µ.
+    |PPPPPPPPPPPP|.################%"'¨¨¨¨___          _____      _   ¨_¨¨¨¨'"ù#########µ.
+    PPPPPPPPPPPPPP.%############"'¨¨¨¨   ###\\        #####\\    #|   #|      ¨¨¨'"ù########.
+      ##''"%%%%%%%%###########"¨¨¨       #|_#| _  _   #|   #|    #|   #|    _      ¨¨'"ù#####\.
+      .#####################"¨¨          ###\\#| #|   #|   #|    #|___#|   #|          ¨¨'"ù####.
+     #####################"¨¨            #|_#|#|_#|   #####/ ___ ######|   #|              ¨¨'"##%
+      "#################"¨¨              ###/ °###|   #|    ###\\#|   #| ###|                  ¨"##.
+      ¨¨"#############"¨¨                      __#|   #|    #| #|#|   #|#|_#|_                    ¨".
+        ¨¨"##########¨¨                       ###/    #'    ###/ #'   #' ##'#'                      ¨'_
+          ¨¨"######"¨¨                                      #|
+            ¨¨"###¨¨                                        #'
+              ¨¨"¨             ¨
+                ¨
+                                      Logo by SBibi
+
+
+
+
+
+
+       Title: PreOs
+     Version: 1.0.9
+ Platform(s): TI-89, TI-89 titanium, TI-92+, V200
+      Author: Patrick Pelissier (some minor routines by Kevin Kofler).
+    Web Site: http://www.yaronet.com/t3/
+      E-Mail: patrick.pelissier@gmail.com
+Release Date: 2017/12/07
+
+---------
+0.Licence
+---------
+
+  PreOS - Kernel Extender for Ti-92+, Ti-89, Ti-89 titanium & V200 systems- 
+  Copyright (C) 2002, 2003, 2004, 2005, 2006, 2007, 2009, 2013 Patrick Pelissier / Time To Team
+  
+  This program is free software ; you can redistribute it and/or modify it under the
+  terms of the GNU General Public License as published by the Free Software Foundation;
+  either version 2 of the License, or (at your option) any later version. 
+  
+  This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU General Public License for more details. 
+  
+  You should have received a copy of the GNU General Public License along with this program;
+  if not, write to the 
+  Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA 
+
+--------------
+I-Introduction
+--------------
+
+	PreOS is a kernel extender (an advanced shared linker) which allows the execution of assembly kernel programs on your TI 89 or TI 92 Plus. It actually extends the built-in assembly support which is very limited. PreOS is needed to run some programs (or games) on theses calculators.
+	This version of PreOS is compatible with DoorsOs, UniOs and TeOs. I intend to make it as stable as I can, but it is very hard without a MMU...
+
+	This program may use and include the TI-89/92+/V200 Hardware 2.00 AMS 2.0x TSR support v.1.11 by Kevin Kofler under the GPL license in its installation routine. See h220xtsr.txt for details about it.
+	
+
+----------------
+II. INSTALLATION
+----------------
+
+	1.    Send Preos.89z / stdlib.89z to your TI-89 calculator.
+	   OR send Preos.9xz / stdlib.9xz to your TI-92+ calculator
+	   OR send Preos.v2z / stdlib.v2z to your V200 calculator.
+	2. Archive these files in your SYSTEM folder (usually 'main'). To archive programs, use the [VAR LINK] menu.
+	3. Press 'preos()' in the HOME application in order to install PreOS:
+	   if everything is alright, it shall reports "Installed Preos 1.0.8" in the status bar,
+	   otherwise it shall report why it was unable to proceed.
+	4. You can browse your calculator and run asm programs by pressing SHIFT+ON.
+
+NOTE:	You have to rerun 'preos()' as soon as you reset your calc.
+
+------------------------------------
+Advanced options for advanced users:
+------------------------------------
+	PreOs accepts command lines arguments:
+	+ preos("sysdir","main")       : Set 'main' as the SYSTEM directory.
+					Contrary to previous releases, PreOS >=0.70 searches for libraries in the executable folder, the current folder or in the system folder (The default is 'main'), and not in all folders.
+	+ preos("shell","main\stdlib") : Set the name of the program to launch with SHIFT+ON.
+					It could be a nostub (like tictex) or a kernel (like pct).
+					The default is 'main\stdlib', aka "PreOs Browser".
+	+ preos("install")	       : Install Preos without checking the system.
+	
+ The options can be combined: 
+	 	preos("install","sysdir","system","shell","main\tictex")
+ 
+--------------------
+III. UN-INSTALLATION
+--------------------
+
+	1. To uninstall PreOS, run:
+		preos("uninstall")
+	It will restore the Vector table, and will free the allocated handles.
+
+WARNING: If you have installed TSR which use others vectors in the vector table than the traps, either they won't work anymore (and you will lose some memory), either your calculator will crash. I highly advise you to uninstall other TSR before PreOS.
+ 
+	2. Reset
+	
+	Another way is doing a calculator reset. It is clean, and you are sure to get the calculator in a stable state.
+
+
+----------
+IV. F.A.Q.
+----------
+
+YOU:	How can I send a program to the calculator?
+ME:	See Beginners FAQ.
+
+YOU:	How can I run a program on the calculator?
+ME:	In the HOME application (Press 'HOME' key on 89 or DIAMOND + 'Q' on 92+),
+	you have to enter the program with the brackets. For example, if you want
+	to run a program which name is 'PROGRAM', you have to press the following
+	keys: 'P' 'R' 'O' 'G' 'R' 'A' 'M' '(' ')' 'ENTER'
+	See Beginners FAQ for a more detailed answer.
+
+YOU:	I get "Memory Error". I can't run any programs anymore.
+ME:	Archive some of your programs / data.
+	You should always have more than 150 Kb of free RAM so that the calculator works properly.
+
+YOU:	How can I archive a program on the calculator?
+ME:	There is a built-in file explorer in your calculator.
+	Open it using the key combo: [2nd] + [VAR-LINK]
+	Open the first Menu (Press [F1]), and select "Archive program".
+	Archiving files mean move them from RAM to Flash ROM, so that 
+	they remain after a crash or a reset. You should always archive
+	important files!
+
+YOU:	I have send both 'preos' and 'stdlib' and SHIFT+ON combo doesn't work.
+ME:	Check if the shell program is correctly set when installing PreOS.
+	Default is to launch 'main\stdlib'.
+	Check also if PreOS is really installed.
+	
+YOU:	What does PreOS exactly do?
+ME:	It removes the RAM execution limitation. 
+	It searches for internal features of AMS, and offers a proper way for programs to interract with them.
+	If links the program with libraries, offering a more advanced format.
+	It offers more system calls to programs.
+	It installs a very efficient crash handler.
+	It allows using assembly programs in expression.
+	It runs a shell as soon as SHIFT+ON is pressed, calling it in a proper way.
+	It emulates Ti-92+/Ti-89 on V200/Titanium if the program wasn't designed for theses calculators.
+	
+YOU:	Where are the libraries?
+ME:	Libraries are packed and compressed in one file: 'stdlib'.
+	This Pack Archive contains:
+		+ Preos Browser (It will run it when you run the Pack Archive).
+		+ filelib/graphlib/userlib/ziplib / genlib/genalib/genclib / fargray /
+		  pk92lib/brwselib/ugplib/shrnklib / gray4lib/gray7lib/util/triglib/linelib/hufflib/hexlib
+	So you don't need to have this libraries in your calculator.
+	Due to the fact that the Pack Archive is compressed using shrnklib, shrnklib is included in the pack without any compression! So you don't need to have theses libraries anymore.
+	
+YOU:	It says 'library not found', but I have it.
+ME:	Check if the system directory is correctly set.
+	Preos first looks inside the current directory, then in the system one,
+	and finally check for the pack archives. It doesn't look anymore in all the VAT.
+	
+YOU:	It says 'Wrong library version', and I have sent the newest version of 'stdlib'.
+ME:	Check if you don't have old versions of the libraries in your system directory.
+	Preos won't look inside Pack Archives if it found a non-compressed library.
+	
+YOU:	Preos says 'Extracting' every time but I don't call a compressed program!
+ME:	Yes. But the libraries are compressed!
+	So it needs to decompress them before running it.
+	Moreover, Preos Browser will free the used libraries during the running of a program. So if you call a program under it, when you return to it, you'll see 'Extracting' again: it extracts the libraries (again) to allow browsing.
+
+YOU:	Preos says "Kernel Panic". 
+ME:	Preos tells you this message when it founds a fatal error while linking your program:
+	it is impossible to relocate it. For example, program foo is compressed using shrnklib, and
+	shrnklib is compressed with foo: preos can't extract any of them! This message is mainly 
+	for developers. It displays also this message when you runs another program with the same
+	name, but IS different. For example, inside main\pct, you tries to runs extra\pct (It is because
+	the symbols exported by the first pct are hidden by the second launch, and preos doesn't allow
+	such a thing).
+
+YOU:	I am tired of the slowness of launching a program.
+ME:	Extract the used libraries and the program in your SYSTEM folder.
+
+YOU:	My own version of Preos works perfectly but when I send it to my friends it doesn't work.
+ME:	It is maybe because you haven't archived Preos before running it.
+
+YOU:	PreOs says that 'smqlib' is outdated, but I can't find a newer one.
+ME:	This message is just a warning, and indeed a newer version of this library doesn't exist.
+	(This is true for sor3*, rv_lib, bmlib).
+	
+YOU:	On my Titanium, this program works perfectly but when I sent it to a friend, it doesn't
+	work on its calculator, but this program should work on it!
+ME:	Preos tries to make old programs work on Titanium by applying a lot of patches. 
+	It doesn't remove them due to size reason, so you need to archive all your programs
+	to be able to transfer them to other calculator (including newer Titanium),
+	BEFORE running them.
+	
+
+If your TI89 freezes, press 2nd - Right - Left - ON to reset it.
+If this doesn't work remove the 4 batteries + the Lithium battery
+	
+If your TI92+ freezes, press 2nd - Lock - ON to reset it.
+If this doesn't work remove the 4 batteries + the Lithium battery
+
+
+
+----------------------
+V: Using Preos Browser
+----------------------
+
+	It is a tiny launcher of ASM programs. It supports nostub / kernel programs. It doesn't support PPG programs. You can run it by pressing SHIFT+ON or by running it directly from home ('stdlib()'). If a program you attempt to execute fails, Preos Browser will display an error. You may bypass the shell by launching programs directly from Home application.
+
+	When you start Preos Browser, it displays a menu of the folders on your TI-92+/Ti-89/V200. There are two modes of operation; one is the folder view, which is the default upon startup, and the second is the program view.
+	The main (and only) advantage of Preos Browser compared to doors/enstein/pct/tictex/... is that is is VERY small: when you run a program from this browser, only 298 bytes of RAM are used by the browser!
+	Use the following keys to navigate through Preos Browser:
+
+	 [Up]         - move cursor up
+	 [Down]       - move cursor down
+	 [2nd] [Up]   - page up
+	 [2nd] [Down] - page down
+	 [ENTER]      - execute program / enter folder
+	 [ESC]        - quit
+
+
+
+------------
+VI. FEATURES
+------------
+
+	- Runs on TI 89, Ti-89 titanium, TI 92 Plus & V200.
+	- Runs on all known AMS version (1.00, 1.01, 1.05, 2.01, 2.03, 2.04, 2.05, 2.07, 2.08, 2.09, 3.00, 3.01 & 3.10).
+	- Runs on hardware version 1, 2, 3 & 4.
+	- Uses either HW2Patch, HW3Patch or H220xTSR if possible.
+	- Complete "Kernel format" support.
+	- Anti Crash protection for nostub and kernel programs with protected exit mode.
+	- Terminate all programs at any time with [ESC]+[ON] (Nostub, Kernel programs or even AMS) by losing minimal free RAM (~200b).
+	- [SHIFT] + ON calls shell program as soon as possible.
+	- Can detect if the ROM, the kernel or the libraries are outdated.
+	- The best and complete support of dynamic libraries you could find.
+	- Breaks the software program size limit imposed on AMS calculators.
+	- Automatically frees unused blocs of memory for kernel programs.
+	- Auto clean-up of all the relocated kernel programs before exiting.
+	- No more "Invalid in a function or current expression". 
+	- Emulation layer on V200 and on Titanium for running old programs not designed for such calculators.
+		
+More advanced features:
+-----------------------
+
+	- Fix Crash Bug when you change your batteries on HW2 if no Hw2Tsr.
+	- Archived Library support (temporary copied, and not unarchived).
+	- An unused library is freed as soon as you don't need it.
+	- The libraries have now an internal version number so that a program won't run if the library is outdated. The new libraries with a version number are still compatible with other Kernels.
+	- Rewritten versions of the standard libs.
+	- Support of compressed libraries.
+	- Support of auto extractable Pack Archive.
+	- Support of Static files in Pack Archive. Example : you have 'smacode' (the code which needs to be executed in RAM) and 'smadata' (the data which should in archive memory). With previous version of Preos, you were able to declare 'smadata' as Read Only so that this library wouldn't be unarchived (To gain RAM memory). Now, you can add in a Pack Archive both code and data ! 'smacode' will be added in the pack and compressed, 'smadata' will be added too but not compressed. When you run your Pack Archive, it (uncompress &) runs 'sma'. But 'smadata' will remain in the archive memory ! You have only ONE file ('sma', the pack archive) which starts itself, with BOTH code (compressed), data & BSS section separated, and without any over-cost of RAM : only the code uses the RAM (Strictly speaking you'll have an over-cost of 18 bytes. So ~0 ;).
+	- Under Kernel programs, all the vectors and EV_hook are restored like the ports $600010 and $600017.
+	- Don't save the screen, but redraw it (You gain 4Kb of memory !) except if you run it with SHIFT+ON (Save_screen flag doesn't work also under SHIFT+ON call).
+	- Check if the stub of a program is valid!
+	- Support for BSS blocks (for programmers).
+	- Virtual Ti is detected as an HW1.
+	- Supports for HW_VERSION, & EMULATOR RAM_CALLS.
+	- Supports programs which return expressions to the TIOS / RetValue works (Except with nostub launchers: RetVal is disabled, since PreOs can't fix the return address).
+	- ROM_THROW support on AMS < 2.04, and ROM_THROW support even in supervisor mode on all AMS (AMS 2.05 doesn't support ROM_THROW under Supervisor mode).
+	- No more 'Illegal Program Reference'.
+	- ER_throw works fine.
+	- As small as possible / the most complete kernel you can found (in 2006 January).
+	- Don't use tios::EV_hook, so it is 95% compatible with TSR (See below for the 5%) (But saves it like an auto-int).
+	- New MakePrgm :
+		+ MiStub programs (Mix between nostub and kernel programs)
+		+ Libs Versions
+		+ Small Stub
+		+ Fix a bugs in the calculus of the offset in case of ExtraRamCalls
+		+ Better error messages
+		+ _readonly / _debug / _donotsavescreen
+	- Create a saved copy of the new auto-ints and EV_hook each time preos is called: if you have installed a TSR which changes the auto-ints, you should run preos after so that PreOs reload a new right configuration of the auto-ints (It will restore them when nostub programs crash).
+	- Install its own vectors :
+		+ Address Error
+		+ Illegal Instruction
+		+ Divide By Zero
+		+ CHK Instruction
+		+ TRAPV Instruction
+		+ Privilege Violation
+		+ Auto Int 6
+		+ Line 1111 Emulator
+		+ Line 1010 Emulator
+	Spurius Error and Bus Error are NOT intercepted since they are very important (If such a vectors occurs, it means that your calc has a very dangerous hardware bug).
+	The Line 1111 Emulator vector is a VERY important vector for Preos. It won't allow that another program, like a TSR, changes it.
+	- Add more than 32 useful RAM_CALLS functions (See Ramcalls.Txt)
+	- (un)reloc(2) are installed : ProSit will work.
+	- Save_Screen flag is supported!
+	- Read_Only flag is supported!
+	- The userlib::exec function supports zipped programs: it uses conditional libs so that, if it isn't a zipped program, you don't need ziplib. But it is useless, since even 'Doors explorer' doesn't use this feature (It uncompresses the program by itself). kernel::exec and util::exec don't support zipped programs.
+	- The original contrast value is restored in case of a crash (Nostub or kernel).
+	- ROM_THROW supports special value $FFF0 (Long jsr offset), $FFF1 (Long jmp offset) and $FFF2 (Word RomThrow)
+	- Restore original AMS auto-int in case saved auto-ints are corrupted.
+	- much more, of course :)
+
+
+IT DOESN'T DO :
+---------------
+
+	+ It doesn't copy the program each time you want to run it, so it should be less stable than UniOs.
+	+ Doe not intercept the reset vector (Use UniOs if you want it).
+	+ kernel::Idle does nothing under Vti (Use UniOs if you want it).
+	+ userlib::KbdMgr is not defined :(
+
+---------
+VII-Build
+---------
+	To build PREOS, you needs TIGCC properly installed on your computer,
+	and some UNIX binutils: make, cp, rm, mv, gcc and g++.
+	Note that you don't need all theses tools to build only some component of PreOS.
+
+	At the root of the archive, just run make.
+
+-----------
+VIII-Future
+-----------
+	+ Port to newer CALCULATOR / AMS / HARDWARE.
+	+ Fix bugs?
+	
+--------------
+Kernel History
+--------------
+
+	Before installing Preos, a little bit of history. The first kernel for Ti calcs was Zshell (See http://www.ticalc.org) for Ti-85 (I think. Fix me if I am wrong). The first kernel for 68k calc was Fargo for Ti-92 by David Ellsworth (Fargo I and Fargo II) - http://www.ticalc.org. When the Ti-92+ arrived, Rusty Wagner created the first kernel for 92+: PlusShell (version <0.9 - Kernel v1). In fact, there wasn't any kernel program. The kernel core was inside the program itself: if you have 10 programs, you'll have 10 kernel cores. And you can't update it. As a consequence, Rusty and Xavier Vassor decided a new format for Kernel programs with external Kernel core: PlusShell v1.0 alpha, DoorsOs v1.xx and LexOs (Kernel v2). They were designed specifically for AMS 1.01. When AMS 2.0x arrived, a new format was decided because the old format supports only AMS 1.01: DoorsOs II, Universal Os and TeOs (Kernel v3). This format is quite good since it works fine today, but it has some gaps. To fix them, 2 new formats arrived: Preos (Kernel v4) and Pack Archives (Kernel v5).
+	Preos supports Kernel version 3, 4 & 5 on all AMS versions. It supports kernel version 2 also on AMS 1.01 only! It doesn't (and can't) support kernel v1 (But you can use cK1toK2.exe to convert a Kernel v1 program to kv2). If you want to know the Kernel version of a program, just check which kernel is needed.
+
+-------------
+IX-Known Bugs
+-------------
+
+	+ If you do a Hot-Reset when you are in the VAR-LINK, you cannot access it anymore.
+	+ If you do SHIFT+ON under the Unit Menu, with a drop down, on Ti-89, when you return from the Doors Explorer, there is a bug in the font size in the Unit Menu (The small font appears to have the size of the medium font).
+	+ If the program called by SHIFT+ON, uses HS_popEstack / NG_execute, it will certainly create some bugs.
+	+ If you do SHIFT+ON under very low free memory conditions, you may lose more free memory (Very unlikely).
+	+ Uninstall process is not perfect, and may lose memory or corrupt calculator.
+	
+------------
+X-Thanks to
+------------
+
+	- Olivier Armand (ExtendeD) <ola.e-ml@wanadoo.fr> for its advices and bug fixes. 
+	- Johan  <johei804@student.liu.se> for its 'TI-89 HARDWARE INFORMATION'.
+	- Zeljko Juric <Zeljko@tigcc.ticalc.org> for TIGCClib.
+	- Kevin Kofler <kevin.kofler@chello.at> for its advises and HW2TSR.
+	- Olivier Lesteven <b.lesteven@wanadoo.fr> for TeOs.
+	- Julien Muchembled <Julien.Muchembled@netcourrier.com> for HW2Patch and many other things.
+	- Rusty Wagner <river@gte.net> for Virtual TI and MakePrgm.
+	- Martial Demolins for its bug reports

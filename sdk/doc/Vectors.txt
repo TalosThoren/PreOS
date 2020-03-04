@@ -1,0 +1,73 @@
+Some vectors are used by the kernel:
+
+$30.w	: version of the kernel.
+
+$32.w	: OS identifier:
+	+ 'DT' for DoorsOS
+	+ 'UO' for Universal Os
+	+ 'TO' for Teos
+	+ 'PO' for PreOS
+	+ 'RO' for PedroM (based on PreOS)
+	+ 'KN' for KerNo
+	+ 'TI' for TitaniK
+	
+$34.l	: adress of the exec function (Program '68kP' only).
+	Input:
+		address of the program to execute + 4 pushed on the stack
+	destroy:
+		a0-a1/d0-d2
+
+$38.l	: adress of the reloc function
+	input :
+		d0.w : handle to the file to relocate
+	output:
+		d0.w : result of the relocation (0 if no error else an error code depending of the kernel).
+		a0.l : adress of the name of the library which caused the error (if there was an error)
+	destroy:
+		a0/d0
+
+$3C.l	: adress of the reloc2 function
+	input:
+		a6.l : the adress to the very first instruction of the prog (the beginning of the file)
+	output:
+		d0.w : result of the relocation (0 if no error else an error code depending of the kernel).
+		a0.l : adress of the name of the library which caused the error (if there was an error)
+	destroy:
+		a0/d0
+
+$40.l	: adress of the unreloc function
+	input :
+		d0.w : handle to the file to unrelocate
+	destroy:
+		a0/d0
+
+$44.l	: adress of the unreloc2 function
+	input:
+		a6.l : the adress to the very first instruction of the prog (the beginning of the file)
+	destroy:
+		a0/d0
+
+$48.w	: handle of the memory block containing the kernel.
+	This block is to be freed if you want to uninstall the kernel
+	But it isn't the only thing to uninstall, so use the uninstall program !
+	
+$50.l	: adress of the generalised 'exec' function.
+	It runs any recognized kernel programs (Program '68kP' and Program Archive '68aC').
+	Input:
+		address of the program to execute + 4 pushed on the stack
+	destroy:
+		a0-a1/d0-d2
+	Note:
+		The kernel MUST check the signature, and do nothing if it doesn't recognize it.
+		For '68kP' programs, you could try vector $34.l too since it is the normal way to call a '68kP'.
+		Not all kernels support the running of '68kP' through this vector.
+		
+$E0.l: saved auto-int1 (it is the copy to reinstall in case of a nostub crash).
+$E4.l: saved auto-int2 (it is the copy to reinstall in case of a nostub crash).
+$E8.l: saved auto-int3 (it is the copy to reinstall in case of a nostub crash).
+$EC.l: saved auto-int4 (it is the copy to reinstall in case of a nostub crash).
+$F0.l: saved auto-int5 (it is the copy to reinstall in case of a nostub crash).
+$F4.l: saved auto-int6 (it is the copy to reinstall in case of a nostub crash).
+$F8.l: saved auto-int7 (it is the copy to reinstall in case of a nostub crash).
+$FC.l: Reserved
+
